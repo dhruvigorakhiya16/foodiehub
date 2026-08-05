@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Hub - Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       ADMIN DASHBOARD - DARK GLASSMORPHISM THEME
+       Distinct from the light customer-facing site
+       ============================================ */
+    :root {
+      --admin-bg: #0b0f1a;
+      --admin-bg-2: #111827;
+      --admin-card: rgba(255,255,255,0.05);
+      --admin-card-border: rgba(255,255,255,0.09);
+      --admin-gold: #f0b90b;
+      --admin-gold-2: #d4af37;
+      --admin-text: #e5e7eb;
+      --admin-muted: #9ca3af;
+      --admin-danger: #ef4444;
+      --admin-success: #22c55e;
+      --admin-info: #38bdf8;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--admin-bg);
+      color: var(--admin-text);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(600px 400px at 10% -10%, rgba(240,185,11,0.14), transparent 60%),
+        radial-gradient(700px 500px at 110% 20%, rgba(56,189,248,0.10), transparent 60%),
+        radial-gradient(500px 500px at 50% 120%, rgba(240,185,11,0.08), transparent 60%);
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(240,185,11,0.4), transparent),
+        radial-gradient(1px 1px at 40% 70%, rgba(240,185,11,0.25), transparent),
+        radial-gradient(1px 1px at 60% 20%, rgba(240,185,11,0.35), transparent),
+        radial-gradient(1px 1px at 80% 80%, rgba(240,185,11,0.2), transparent),
+        radial-gradient(1px 1px at 90% 40%, rgba(240,185,11,0.3), transparent);
+      background-size: 220px 220px;
+      z-index: -1;
+      pointer-events: none;
+      animation: adminDrift 24s linear infinite;
+    }
+
+    @keyframes adminDrift {
+      0% { transform: translateY(0); opacity: 0.5; }
+      50% { transform: translateY(-30px); opacity: 0.9; }
+      100% { transform: translateY(0); opacity: 0.5; }
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(35px,-45px) scale(1.15); }
+      66% { transform: translate(-30px,30px) scale(0.9); }
+      100% { transform: translate(0,0) scale(1); }
+    }
+
+    @keyframes loginCardIn {
+      0% { opacity: 0; transform: translateY(40px) scale(0.92); }
+      60% { opacity: 1; transform: translateY(-6px) scale(1.015); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(18px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes statCountIn {
+      0% { opacity: 0; transform: scale(0.6) rotateX(45deg); }
+      100% { opacity: 1; transform: scale(1) rotateX(0); }
+    }
+
+    @keyframes goldPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(240,185,11,0.25); }
+      50% { box-shadow: 0 0 26px rgba(240,185,11,0.55); }
+    }
+
+    @keyframes rowIn {
+      0% { opacity: 0; transform: translateX(-14px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes shimmerBar {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .loading-bar {
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #f0b90b, transparent);
+      background-size: 200% 100%;
+      animation: shimmerBar 1.4s linear infinite;
+      border-radius: 3px;
+    }
+
+    /* ---- LOGIN OVERLAY ---- */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0b0f1a 0%, #141b2d 55%, #1a1220 100%);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .login-overlay::before,
+    .login-overlay::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(16px);
+    }
+
+    .login-overlay::before {
+      width: 340px;
+      height: 340px;
+      top: -80px;
+      left: -80px;
+      background: radial-gradient(circle, rgba(240,185,11,0.35), transparent 65%);
+      animation: floatOrb 10s ease-in-out infinite;
+    }
+
+    .login-overlay::after {
+      width: 420px;
+      height: 420px;
+      bottom: -120px;
+      right: -100px;
+      background: radial-gradient(circle, rgba(56,189,248,0.28), transparent 65%);
+      animation: floatOrb 13s ease-in-out infinite reverse;
+    }
+
+    .admin-login-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 36px 32px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      animation: loginCardIn 0.8s cubic-bezier(0.175,0.885,0.32,1.275) both;
+    }
+
+    .admin-login-card .shield {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f0b90b, #d4af37, #f6d860);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px;
+      font-size: 1.9rem;
+      color: #0b0f1a;
+      box-shadow: 0 8px 30px rgba(240,185,11,0.45);
+      animation: goldPulse 2.6s ease-in-out infinite;
+    }
+
+    .admin-login-card h4 {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .admin-login-card p {
+      color: var(--admin-muted);
+    }
+
+    .admin-login-card .form-label {
+      color: #cbd5e1;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .admin-login-card .form-control {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      transition: border-color 0.3s ease,
+                  background-color 0.3s ease,
+                  box-shadow 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    /* Admin password box hover: gold glow (no transform so typing stays stable) */
+    .admin-login-card .form-control[type="password"]:hover:not(:focus) {
+      border-color: #f0b90b;
+      background: rgba(240,185,11,0.10);
+      box-shadow: 0 6px 18px rgba(240,185,11,0.22);
+    }
+
+    .admin-login-card .form-control:focus {
+      background: rgba(255,255,255,0.09);
+      border-color: #f0b90b;
+      box-shadow: 0 0 0 0.25rem rgba(240,185,11,0.2);
+      transform: none;
+    }
+
+    .admin-login-card .form-control::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .admin-login-card .btn-admin-login {
+      background: linear-gradient(135deg, #f0b90b, #f6d860, #d4af37);
+      background-size: 220% 220%;
+      animation: adminBtnShimmer 3.5s ease infinite;
+      border: none;
+      color: #0b0f1a;
+      font-weight: 700;
+      border-radius: 50px;
+      padding: 12px;
+      width: 100%;
+      transition: all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes adminBtnShimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .admin-login-card .btn-admin-login:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 35px rgba(240,185,11,0.45);
+    }
+
+    .admin-login-card .btn-admin-login:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    /* ---- NAVBAR ---- */
+    .admin-navbar {
+      background: rgba(11,15,26,0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(240,185,11,0.2);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+      padding: 14px 0;
+    }
+
+    .admin-navbar .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      color: #fff !important;
+      font-size: 1.35rem;
+    }
+
+    .admin-navbar .navbar-brand i {
+      color: #f0b90b;
+    }
+
+    .admin-badge {
+      background: linear-gradient(135deg, rgba(240,185,11,0.18), rgba(240,185,11,0.08));
+      border: 1px solid rgba(240,185,11,0.45);
+      color: #f6d860 !important;
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.4px;
+      box-shadow: 0 0 18px rgba(240,185,11,0.18);
+    }
+
+    .admin-badge i {
+      color: #f0b90b;
+    }
+
+    /* ---- LAYOUT ---- */
+    .admin-section {
+      min-height: 100vh;
+      padding: 110px 0 60px;
+    }
+
+    .admin-sidebar {
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 22px;
+      padding: 20px 14px;
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 100px;
+    }
+
+    .admin-sidebar .sidebar-title {
+      color: var(--admin-muted);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin: 6px 8px 14px;
+    }
+
+    .admin-menu-item {
+      cursor: pointer;
+      padding: 12px 16px;
+      border-radius: 14px;
+      transition: all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+      margin-bottom: 5px;
+      color: var(--admin-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      font-size: 0.92rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .admin-menu-item i {
+      width: 22px;
+      text-align: center;
+      font-size: 1.05rem;
+      transition: transform 0.3s ease;
+    }
+
+    .admin-menu-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #f0b90b, #f6d860);
+      border-radius: 0 6px 6px 0;
+      transform: scaleY(0);
+      transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .admin-menu-item:hover {
+      background: rgba(240,185,11,0.1);
+      color: #f6d860;
+      transform: translateX(4px);
+    }
+
+    .admin-menu-item:hover i {
+      transform: scale(1.15) rotate(-8deg);
+    }
+
+    .admin-menu-item.active {
+      background: linear-gradient(135deg, rgba(240,185,11,0.2), rgba(240,185,11,0.06));
+      color: #f6d860;
+      box-shadow: 0 4px 18px rgba(240,185,11,0.15);
+    }
+
+    .admin-menu-item.active::before {
+      transform: scaleY(1);
+    }
+
+    .admin-menu-item.active i {
+      color: #f0b90b;
+    }
+
+    /* ---- CONTENT CARDS ---- */
+    .admin-content-wrap {
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 28px;
+      backdrop-filter: blur(12px);
+      animation: fadeSlide 0.55s cubic-bezier(0.175,0.885,0.32,1.275) both;
+      min-height: 420px;
+    }
+
+    .admin-page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .admin-page-title i {
+      color: #f0b90b;
+    }
+
+    .admin-page-sub {
+      color: var(--admin-muted);
+      font-size: 0.9rem;
+    }
+
+    /* ---- STAT CARDS ---- */
+    .admin-stat-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 20px;
+      padding: 22px 18px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .admin-stat-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(200px 120px at 50% -20%, rgba(240,185,11,0.14), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .admin-stat-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: rgba(240,185,11,0.4);
+      box-shadow: 0 18px 45px rgba(0,0,0,0.45), 0 0 25px rgba(240,185,11,0.12);
+    }
+
+    .admin-stat-card:hover::after {
+      opacity: 1;
+    }
+
+    .admin-stat-card .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin: 0 auto 14px;
+      background: rgba(240,185,11,0.15);
+      color: #f0b90b;
+      border: 1px solid rgba(240,185,11,0.3);
+      transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .admin-stat-card:hover .stat-icon {
+      transform: scale(1.15) rotate(10deg);
+    }
+
+    .admin-stat-card h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: #fff;
+      margin-bottom: 2px;
+      animation: statCountIn 0.7s cubic-bezier(0.68,-0.55,0.265,1.55) both;
+    }
+
+    .admin-stat-card small {
+      color: var(--admin-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ---- TABLES ---- */
+    .admin-table-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .admin-table {
+      --bs-table-bg: transparent;
+      --bs-table-color: var(--admin-text);
+      margin-bottom: 0;
+    }
+
+    .admin-table thead th {
+      background: rgba(240,185,11,0.08) !important;
+      color: #f6d860 !important;
+      font-size: 0.74rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(240,185,11,0.25) !important;
+      padding: 14px 16px;
+      white-space: nowrap;
+    }
+
+    .admin-table tbody tr {
+      animation: rowIn 0.4s ease both;
+      transition: background 0.25s ease;
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    .admin-table tbody tr:nth-child(1) { animation-delay: 0.04s; }
+    .admin-table tbody tr:nth-child(2) { animation-delay: 0.08s; }
+    .admin-table tbody tr:nth-child(3) { animation-delay: 0.12s; }
+    .admin-table tbody tr:nth-child(4) { animation-delay: 0.16s; }
+    .admin-table tbody tr:nth-child(5) { animation-delay: 0.20s; }
+    .admin-table tbody tr:nth-child(6) { animation-delay: 0.24s; }
+
+    .admin-table tbody tr:hover {
+      background: rgba(240,185,11,0.07) !important;
+    }
+
+    .admin-table tbody td {
+      padding: 13px 16px;
+      color: #d1d5db;
+      font-size: 0.9rem;
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    .admin-table .table-badge {
+      border-radius: 50px;
+      padding: 4px 13px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    /* ---- ADMIN BUTTONS ---- */
+    .btn-admin-action {
+      background: rgba(240,185,11,0.14);
+      border: 1px solid rgba(240,185,11,0.4);
+      color: #f6d860;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      padding: 7px 16px;
+      transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .btn-admin-action:hover {
+      background: linear-gradient(135deg, #f0b90b, #f6d860);
+      color: #0b0f1a;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 22px rgba(240,185,11,0.4);
+    }
+
+    .btn-admin-danger {
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: #f87171;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      padding: 7px 16px;
+      transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .btn-admin-danger:hover {
+      background: #ef4444;
+      color: #fff;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 22px rgba(239,68,68,0.35);
+    }
+
+    .btn-admin-primary {
+      background: linear-gradient(135deg, #f0b90b, #f6d860, #d4af37);
+      border: none;
+      color: #0b0f1a;
+      border-radius: 50px;
+      font-weight: 700;
+      transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+
+    .btn-admin-primary:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 10px 30px rgba(240,185,11,0.4);
+    }
+
+    .admin-table .form-select-sm {
+      background-color: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #e5e7eb;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      cursor: pointer;
+    }
+
+    .admin-table .form-select-sm option {
+      background: #1a2033;
+      color: #e5e7eb;
+    }
+
+    /* ---- SWEET ALERT THEME ---- */
+    .swal2-popup {
+      background: #141b2d !important;
+      border: 1px solid rgba(240,185,11,0.25);
+    }
+
+    .swal2-title, .swal2-html-container, .swal2-input, .swal2-textarea {
+      color: #e5e7eb !important;
+    }
+
+    .swal2-input, .swal2-textarea {
+      background: rgba(255,255,255,0.07) !important;
+      border: 1px solid rgba(255,255,255,0.15) !important;
+    }
+
+    .swal2-input:focus, .swal2-textarea:focus {
+      border-color: #f0b90b !important;
+      box-shadow: 0 0 0 0.2rem rgba(240,185,11,0.2) !important;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 991px) {
+      .admin-sidebar { position: static; margin-bottom: 20px; }
+    }
+  </style>
+  
+</head>
+<body>
+  <!-- Admin Login Overlay -->
+  <div id="adminLoginOverlay" class="login-overlay">
+    <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.4/dist/dotlottie-wc.js" type="module"></script>
+<dotlottie-wc src="https://lottie.host/a111d659-c42a-4133-b94f-c3c296a7fcde/1ji44snAoK.lottie" style="width: 300px;height: 300px" autoplay loop></dotlottie-wc>
+    <div class="admin-login-card">
+      <div class="text-center mb-4">
+        <div class="shield"><i class="fas fa-shield-halved"></i></div>
+        <h4 class="fw-bold mb-1">Admin Dashboard</h4>
+        <p class="small">Restricted area · Primary admin only</p>
+      </div>
+      <div id="adminLoginAlert" class="alert alert-danger d-none py-2 px-3 small"></div>
+      <form id="adminLoginForm">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control form-control-lg" id="adminEmail" value="adminfoodiehub@gmail.com" required>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control form-control-lg" id="adminPassword" value="admin1234" required>
+        </div>
+        <button type="submit" class="btn-admin-login" id="adminLoginBtn">
+          <span id="adminLoginText"><i class="fas fa-sign-in-alt me-2"></i>Sign In</span>
+          <span id="adminLoginSpinner" class="spinner-border spinner-border-sm d-none"></span>
+        </button>
+        <div class="text-center mt-3">
+          <a href="index.html" class="small" style="color:var(--admin-muted); text-decoration:none;"><i class="fas fa-arrow-left me-1"></i>Back to website</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg fixed-top admin-navbar">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand fw-bold" href="index.html"><i class="fas fa-crown me-2"></i>Foodie Hub Admin</a>
+      <div class="d-flex align-items-center gap-2">
+        <span class="admin-badge d-none d-md-inline-flex align-items-center gap-2"><i class="fas fa-shield-halved"></i><span id="adminNameBadge">Admin</span> · Admin Only</span>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3" id="adminLogoutBtn" style="border-color:rgba(255,255,255,0.25);"><i class="fas fa-sign-out-alt me-1"></i>Logout</button>
+        <a href="index.html" class="btn btn-warning btn-sm rounded-pill px-3 fw-semibold" style="background:linear-gradient(135deg,#f0b90b,#f6d860);border:none;color:#0b0f1a;"><i class="fas fa-home me-1"></i>Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Dashboard -->
+  <section class="admin-section">
+    <div class="container-fluid px-4">
+      <div class="row g-4">
+        <div class="col-12 col-lg-3">
+          <div class="admin-sidebar">
+            <div class="sidebar-title"><i class="fas fa-tachometer-alt me-1"></i> Menu</div>
+            <div class="admin-menu-item active" data-section="dashboard"><i class="fas fa-chart-pie"></i>Overview</div>
+            <div class="admin-menu-item" data-section="foods"><i class="fas fa-pizza-slice"></i>Food Items</div>
+            <div class="admin-menu-item" data-section="categories"><i class="fas fa-tags"></i>Categories</div>
+            <div class="admin-menu-item" data-section="orders"><i class="fas fa-clipboard-list"></i>Orders</div>
+            <div class="admin-menu-item" data-section="users"><i class="fas fa-users"></i>Users</div>
+            <div class="admin-menu-item" data-section="reservations"><i class="fas fa-calendar-check"></i>Reservations</div>
+            <div class="admin-menu-item" data-section="contacts"><i class="fas fa-envelope"></i>Messages</div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-9">
+          <div id="adminContent">
+            <div class="d-flex justify-content-center py-5">
+              <div style="width:240px;"><div class="loading-bar"></div><p class="text-center text-muted small mt-2">Loading dashboard...</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+const API_URL = '/api';
+      const ADMIN_SESSION_KEY = 'foodiehub_admin_session';
+      let adminUser = null;
+
+      // ---- SESSION HELPERS ----
+      function restoreSession() {
+        try {
+          const saved = JSON.parse(sessionStorage.getItem(ADMIN_SESSION_KEY) || 'null');
+          if (saved && saved.id && saved.email) { adminUser = saved; return true; }
+        } catch (e) {}
+        return false;
+      }
+
+      function verifySession() {
+        if (!adminUser) { showLogin(); return; }
+        fetch(API_URL + '/admin/me', { headers: getHeaders() })
+          .then(r => { if (!r.ok) throw new Error('unauthorized'); return r.json(); })
+          .then(data => {
+            if (data.admin) {
+              adminUser = data.admin;
+              updateAdminBadge();
+              document.getElementById('adminLoginOverlay').classList.add('d-none');
+              loadSection('dashboard');
+            } else { clearSession(); showLogin(); }
+          })
+          .catch(() => { clearSession(); showLogin(); });
+      }
+
+      function updateAdminBadge() {
+        const badge = document.getElementById('adminNameBadge');
+        if (badge && adminUser) badge.textContent = adminUser.name || 'Admin';
+      }
+
+      function saveSession() {
+        try { sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(adminUser)); } catch (e) {}
+      }
+
+      function clearSession() {
+        adminUser = null;
+        try { sessionStorage.removeItem(ADMIN_SESSION_KEY); } catch (e) {}
+      }
+
+      function showLogin() {
+        document.getElementById('adminLoginOverlay').classList.remove('d-none');
+        document.getElementById('adminContent').innerHTML = '';
+      }
+
+      function getHeaders() {
+        return adminUser ? { 'Content-Type': 'application/json', 'x-admin-email': adminUser.email, 'x-admin-id': adminUser.id } : { 'Content-Type': 'application/json' };
+      }
+
+      // ---- LOGIN ----
+      document.getElementById('adminLoginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const email = document.getElementById('adminEmail').value;
+        const password = document.getElementById('adminPassword').value;
+        const alertBox = document.getElementById('adminLoginAlert');
+        const btn = document.getElementById('adminLoginBtn');
+        const btnText = document.getElementById('adminLoginText');
+        const spinner = document.getElementById('adminLoginSpinner');
+        btn.disabled = true; btnText.textContent = 'Signing in...'; spinner.classList.remove('d-none'); alertBox.classList.add('d-none');
+        fetch(API_URL + '/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
+        .then(r => r.json()).then(data => {
+          btn.disabled = false; btnText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Sign In'; spinner.classList.add('d-none');
+          if (data.admin) {
+            adminUser = data.admin;
+            saveSession();
+            updateAdminBadge();
+            document.getElementById('adminLoginOverlay').classList.add('d-none');
+            loadSection('dashboard');
+          } else {
+            alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i>' + (data.message || 'Invalid credentials');
+            alertBox.classList.remove('d-none');
+          }
+        }).catch(() => {
+          btn.disabled = false; btnText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i>Sign In'; spinner.classList.add('d-none');
+          alertBox.textContent = 'Cannot connect to server. Please start the backend.'; alertBox.classList.remove('d-none');
+        });
+      });
+
+      // ---- LOGOUT ----
+      document.getElementById('adminLogoutBtn').addEventListener('click', function () {
+        clearSession();
+        showLogin();
+      });
+
+      // ---- INIT SESSION ----
+      if (restoreSession()) { verifySession(); } else { showLogin(); }
+
+      // ---- MENU NAVIGATION ----
+      document.querySelectorAll('.admin-menu-item').forEach(item => {
+        item.addEventListener('click', function () {
+          document.querySelectorAll('.admin-menu-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          loadSection(this.dataset.section);
+        });
+      });
+
+      // ---- SECTION LOADER ----
+      function loadSection(section) {
+        const content = document.getElementById('adminContent');
+        if (!adminUser) { content.innerHTML = '<div class="alert alert-warning">Please login first.</div>'; return; }
+        content.style.animation = 'fadeSlide 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both';
+        if (section === 'dashboard') loadDashboard(content);
+        else if (section === 'foods') loadFoods(content);
+        else if (section === 'categories') loadCategories(content);
+        else if (section === 'orders') loadOrders(content);
+        else if (section === 'users') loadUsers(content);
+        else if (section === 'reservations') loadReservations(content);
+        else if (section === 'contacts') loadContacts(content);
+      }
+
+      // ---- NAVIGATE FROM STAT CARD CLICK (dashboard overview) ----
+      window.gotoAdminSection = function (section) {
+        // Update the active menu item highlight
+        document.querySelectorAll('.admin-menu-item').forEach(i => {
+          i.classList.toggle('active', i.dataset.section === section);
+        });
+        loadSection(section);
+      };
+
+      // Reset animation so it replays on each section switch
+      const contentEl = document.getElementById('adminContent');
+      contentEl.addEventListener('animationend', function () {
+        this.style.animation = 'none';
+        void this.offsetWidth;
+      });
+
+      // ---- DASHBOARD ----
+      function loadDashboard(el) {
+        el.innerHTML =
+          '<div class="mb-4"><div class="admin-page-title"><i class="fas fa-chart-pie me-2"></i>Overview</div><p class="admin-page-sub">Live business summary</p></div>' +
+          '<div class="row g-3">' +
+          '<div class="col-6 col-md-3"><div class="admin-stat-card"><div class="stat-icon"><i class="fas fa-pizza-slice"></i></div><h3 id="statFoods">-</h3><small>Food Items</small></div></div>' +
+          '<div class="col-6 col-md-3"><div class="admin-stat-card"><div class="stat-icon"><i class="fas fa-clipboard-list"></i></div><h3 id="statOrders">-</h3><small>Orders</small></div></div>' +
+          '<div class="col-6 col-md-3"><div class="admin-stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><h3 id="statUsers">-</h3><small>Users</small></div></div>' +
+          '<div class="col-6 col-md-3"><div class="admin-stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><h3 id="statReservations">-</h3><small>Reservations</small></div></div>' +
+          '</div>';
+        fetch(API_URL + '/foods').then(r => r.json()).then(d => animateCount('statFoods', d.length)).catch(() => {});
+        fetch(API_URL + '/admin/orders', { headers: getHeaders() }).then(r => r.json()).then(d => animateCount('statOrders', d.length)).catch(() => {});
+        fetch(API_URL + '/admin/users', { headers: getHeaders() }).then(r => r.json()).then(d => animateCount('statUsers', d.length)).catch(() => {});
+        fetch(API_URL + '/admin/reservations', { headers: getHeaders() }).then(r => r.json()).then(d => animateCount('statReservations', d.length)).catch(() => {});
+      }
+
+      function animateCount(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const target = Number(value) || 0;
+        let current = 0;
+        const step = Math.max(1, Math.ceil(target / 40));
+        const timer = setInterval(() => {
+          current += step;
+          if (current >= target) { current = target; clearInterval(timer); }
+          el.textContent = current;
+        }, 30);
+      }
+
+      // ---- FOODS ----
+      function loadFoods(el) {
+        el.innerHTML =
+          '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">' +
+          '<div><div class="admin-page-title"><i class="fas fa-pizza-slice me-2"></i>Food Items</div><p class="admin-page-sub">Manage menu items</p></div>' +
+          '<button class="btn-admin-primary btn px-4 py-2" onclick="addFoodItem()"><i class="fas fa-plus me-1"></i>Add Item</button>' +
+          '</div>' +
+          '<div id="foodsList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/foods').then(r => r.json()).then(foods => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Type</th><th>Rating</th><th>Actions</th></tr></thead><tbody>';
+          foods.forEach(f => {
+            const fid = f.food_id || f.id;
+            html += '<tr><td><strong>' + (f.name || f.food_name) + '</strong></td><td><span class="table-badge" style="background:rgba(240,185,11,0.15);color:#f6d860;">' + (f.category_name || f.category) + '</span></td><td><span style="color:#f6d860;">\u20B9' + parseFloat(f.price).toFixed(2) + '</span></td><td><span class="table-badge" style="background:' + (f.food_type === 'Non-Veg' ? 'rgba(239,68,68,0.18);color:#f87171;' : 'rgba(34,197,94,0.18);color:#4ade80;') + '">' + (f.food_type || 'Veg') + '</span></td><td><i class="fas fa-star me-1" style="color:#f0b90b;"></i>' + (f.rating || '-') + '</td>' +
+              '<td><button class="btn-admin-action btn btn-sm" onclick="editFood(' + fid + ')"><i class="fas fa-edit"></i></button> <button class="btn-admin-danger btn btn-sm" onclick="deleteFood(' + fid + ')"><i class="fas fa-trash"></i></button></td></tr>';
+          });
+          html += '</tbody></table></div></div>';
+          document.getElementById('foodsList').innerHTML = html;
+        }).catch(() => document.getElementById('foodsList').innerHTML = '<div class="alert alert-danger">Error loading foods. Ensure backend is running.</div>');
+      }
+
+      window.addFoodItem = function () {
+        Swal.fire({
+          title: 'Add Food Item',
+          html: '<input id="swal-name" class="swal2-input" placeholder="Name"><input id="swal-price" class="swal2-input" type="number" step="0.01" placeholder="Price"><input id="swal-category" class="swal2-input" placeholder="Category"><select id="swal-type" class="swal2-input"><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option></select><textarea id="swal-desc" class="swal2-textarea" placeholder="Description"></textarea><input id="swal-image" class="swal2-input" placeholder="Image URL">',
+          focusConfirm: false, confirmButtonText: 'Add Item', confirmButtonColor: '#f0b90b', showCancelButton: true, cancelButtonColor: '#6b7280',
+          preConfirm: () => fetch(API_URL + '/admin/foods', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ name: document.getElementById('swal-name').value, price: parseFloat(document.getElementById('swal-price').value), category: document.getElementById('swal-category').value, food_type: document.getElementById('swal-type').value, description: document.getElementById('swal-desc').value, image_url: document.getElementById('swal-image').value }) }).then(r => r.json()).then(d => { if (!d.food_id) throw new Error(d.message); return d; })
+        }).then(r => { if (r.isConfirmed) { Swal.fire({ icon: 'success', text: 'Food item added!', timer: 1500, showConfirmButton: false }); loadSection('foods'); } }).catch(err => Swal.fire({ icon: 'error', title: 'Oops', text: err.message }));
+      };
+
+      window.editFood = function (id) {
+        fetch(API_URL + '/foods').then(r => r.json()).then(foods => {
+          const f = foods.find(x => (x.food_id || x.id) === id); if (!f) return;
+          Swal.fire({
+            title: 'Edit Food Item',
+            html: '<input id="swal-name" class="swal2-input" value="' + (f.name || f.food_name || '') + '"><input id="swal-price" class="swal2-input" type="number" step="0.01" value="' + f.price + '"><input id="swal-category" class="swal2-input" value="' + (f.category || '') + '"><select id="swal-type" class="swal2-input"><option value="Veg"' + (f.food_type === 'Veg' ? ' selected' : '') + '>Veg</option><option value="Non-Veg"' + (f.food_type !== 'Veg' ? ' selected' : '') + '>Non-Veg</option></select><textarea id="swal-desc" class="swal2-textarea">' + (f.description || '') + '</textarea>',
+            focusConfirm: false, confirmButtonText: 'Update', confirmButtonColor: '#f0b90b', showCancelButton: true, cancelButtonColor: '#6b7280',
+            preConfirm: () => fetch(API_URL + '/admin/foods/' + id, { method: 'PUT', headers: getHeaders(), body: JSON.stringify({ name: document.getElementById('swal-name').value, price: parseFloat(document.getElementById('swal-price').value), category: document.getElementById('swal-category').value, food_type: document.getElementById('swal-type').value, description: document.getElementById('swal-desc').value }) }).then(r => r.json()).then(d => { if (!d.message.includes('success')) throw new Error(d.message); return d; })
+          }).then(r => { if (r.isConfirmed) { Swal.fire({ icon: 'success', text: 'Updated!', timer: 1500, showConfirmButton: false }); loadSection('foods'); } });
+        });
+      };
+
+      window.deleteFood = function (id) {
+        Swal.fire({ title: 'Delete food item?', text: 'This cannot be undone.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Delete' })
+        .then(r => { if (r.isConfirmed) { fetch(API_URL + '/admin/foods/' + id, { method: 'DELETE', headers: getHeaders() }).then(r => r.json()).then(() => { Swal.fire({ icon: 'success', text: 'Deleted!', timer: 1500, showConfirmButton: false }); loadSection('foods'); }); }});
+      };
+
+      // ---- CATEGORIES ----
+      function loadCategories(el) {
+        el.innerHTML =
+          '<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">' +
+          '<div><div class="admin-page-title"><i class="fas fa-tags me-2"></i>Categories</div><p class="admin-page-sub">Manage menu categories</p></div>' +
+          '<button class="btn-admin-primary btn px-4 py-2" onclick="addCategory()"><i class="fas fa-plus me-1"></i>Add</button>' +
+          '</div>' +
+          '<div id="catsList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/categories').then(r => r.json()).then(cats => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>Name</th><th>Description</th><th>Actions</th></tr></thead><tbody>';
+          cats.forEach(c => { html += '<tr><td><strong>' + c.category_name + '</strong></td><td><span class="text-muted">' + (c.description || '') + '</span></td><td><button class="btn-admin-danger btn btn-sm" onclick="deleteCat(' + (c.category_id || c.id) + ')"><i class="fas fa-trash"></i></button></td></tr>'; });
+          html += '</tbody></table></div></div>';
+          document.getElementById('catsList').innerHTML = html;
+        }).catch(() => document.getElementById('catsList').innerHTML = '<div class="alert alert-danger">Error loading categories.</div>');
+      }
+
+      window.addCategory = function () {
+        Swal.fire({ title: 'Add Category', input: 'text', inputPlaceholder: 'Category name', confirmButtonColor: '#f0b90b', showCancelButton: true, cancelButtonColor: '#6b7280',
+          preConfirm: (name) => fetch(API_URL + '/admin/categories', { method: 'POST', headers: getHeaders(), body: JSON.stringify({ category_name: name }) }).then(r => r.json()).then(d => { if (!d.category_id) throw new Error(d.message); return d; })
+        }).then(r => { if (r.isConfirmed) { Swal.fire({ icon: 'success', text: 'Category added!', timer: 1500, showConfirmButton: false }); loadSection('categories'); } }).catch(err => Swal.fire({ icon: 'error', title: 'Oops', text: err.message }));
+      };
+
+      window.deleteCat = function (id) {
+        Swal.fire({ title: 'Delete category?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', cancelButtonColor: '#6b7280', confirmButtonText: 'Delete' })
+        .then(r => { if (r.isConfirmed) { fetch(API_URL + '/admin/categories/' + id, { method: 'DELETE', headers: getHeaders() }).then(r => r.json()).then(() => { Swal.fire({ icon: 'success', text: 'Deleted!', timer: 1500, showConfirmButton: false }); loadSection('categories'); }); }});
+      };
+
+      // ---- ORDERS ----
+      function loadOrders(el) {
+        el.innerHTML =
+          '<div class="mb-4"><div class="admin-page-title"><i class="fas fa-clipboard-list me-2"></i>All Orders</div><p class="admin-page-sub">Track and update order statuses</p></div>' +
+          '<div id="ordersList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/admin/orders', { headers: getHeaders() }).then(r => r.json()).then(orders => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>#</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th><th>Action</th></tr></thead><tbody>';
+          orders.forEach(o => {
+            const statusMeta = {
+              confirmed: 'rgba(34,197,94,0.18);color:#4ade80;',
+              preparing: 'rgba(240,185,11,0.18);color:#f6d860;',
+              out_for_delivery: 'rgba(56,189,248,0.18);color:#38bdf8;',
+              delivered: 'rgba(34,197,94,0.18);color:#4ade80;',
+              cancelled: 'rgba(239,68,68,0.18);color:#f87171;'
+            };
+            html += '<tr><td><strong style="color:#f6d860;">#' + o.id + '</strong></td><td>' + o.customer_name + '</td><td>' + o.item_count + '</td><td><span style="color:#f6d860;\u20b9">\u20B9' + parseFloat(o.total_amount).toFixed(2) + '</span></td><td><span class="text-muted">' + o.payment_method + '</span></td><td><span class="table-badge" style="background:' + (statusMeta[o.order_status] || 'rgba(156,163,175,0.2);color:#9ca3af;') + '">' + o.order_status + '</span></td><td><small class="text-muted">' + new Date(o.created_at).toLocaleDateString() + '</small></td>' +
+              '<td><select class="form-select form-select-sm" onchange="updateOrderStatus(' + o.id + ', this.value)"><option value="confirmed"' + (o.order_status === 'confirmed' ? ' selected' : '') + '>Confirmed</option><option value="preparing"' + (o.order_status === 'preparing' ? ' selected' : '') + '>Preparing</option><option value="out_for_delivery"' + (o.order_status === 'out_for_delivery' ? ' selected' : '') + '>Out for Delivery</option><option value="delivered"' + (o.order_status === 'delivered' ? ' selected' : '') + '>Delivered</option><option value="cancelled"' + (o.order_status === 'cancelled' ? ' selected' : '') + '>Cancelled</option></select></td></tr>';
+          });
+          html += '</tbody></table></div></div>';
+          document.getElementById('ordersList').innerHTML = html;
+        }).catch(() => document.getElementById('ordersList').innerHTML = '<div class="alert alert-danger">Error loading orders.</div>');
+      }
+
+      window.updateOrderStatus = function (id, status) {
+        fetch(API_URL + '/admin/orders/' + id + '/status', { method: 'PUT', headers: getHeaders(), body: JSON.stringify({ order_status: status }) })
+        .then(r => r.json()).then(d => { Swal.fire({ icon: 'success', text: d.message, timer: 1500, showConfirmButton: false }); });
+      };
+
+      // ---- USERS ----
+      function loadUsers(el) {
+        el.innerHTML =
+          '<div class="mb-4"><div class="admin-page-title"><i class="fas fa-users me-2"></i>All Users</div><p class="admin-page-sub">Registered customers</p></div>' +
+          '<div id="usersList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/admin/users', { headers: getHeaders() }).then(r => r.json()).then(users => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr></thead><tbody>';
+          users.forEach(u => {
+            html += '<tr><td>' + u.id + '</td><td><strong>' + u.name + '</strong></td><td><span class="text-info">' + u.email + '</span></td><td><span class="text-muted">' + (u.phone_no || '-') + '</span></td><td><small class="text-muted">' + new Date(u.created_at).toLocaleDateString() + '</small></td></tr>';
+          });
+          html += '</tbody></table></div></div>';
+          document.getElementById('usersList').innerHTML = html;
+        }).catch(() => document.getElementById('usersList').innerHTML = '<div class="alert alert-danger">Error loading users.</div>');
+      }
+
+      // ---- RESERVATIONS ----
+      function loadReservations(el) {
+        el.innerHTML =
+          '<div class="mb-4"><div class="admin-page-title"><i class="fas fa-calendar-check me-2"></i>Reservations</div><p class="admin-page-sub">Table booking requests</p></div>' +
+          '<div id="reservationsList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/admin/reservations', { headers: getHeaders() }).then(r => r.json()).then(reservations => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Date</th><th>Time</th><th>Guests</th><th>Message</th></tr></thead><tbody>';
+          reservations.forEach(r => {
+            html += '<tr><td>' + r.id + '</td><td><strong>' + r.name + '</strong></td><td><span class="text-muted">' + r.phone + '</span></td><td><span style="color:#f6d860;">' + new Date(r.res_date).toLocaleDateString() + '</span></td><td>' + r.res_time + '</td><td>' + r.guests + '</td><td><small class="text-muted">' + (r.message || '-') + '</small></td></tr>';
+          });
+          html += '</tbody></table></div></div>';
+          document.getElementById('reservationsList').innerHTML = html;
+        }).catch(() => document.getElementById('reservationsList').innerHTML = '<div class="alert alert-danger">Error loading reservations.</div>');
+      }
+
+      // ---- CONTACTS ----
+      function loadContacts(el) {
+        el.innerHTML =
+          '<div class="mb-4"><div class="admin-page-title"><i class="fas fa-envelope me-2"></i>Contact Messages</div><p class="admin-page-sub">Customer inquiries</p></div>' +
+          '<div id="contactsList"><div class="text-center py-5"><div class="spinner-border text-warning"></div></div></div>';
+        fetch(API_URL + '/admin/contacts', { headers: getHeaders() }).then(r => r.json()).then(contacts => {
+          let html = '<div class="admin-table-wrap"><div class="table-responsive"><table class="table admin-table align-middle"><thead><tr><th>#</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Date</th></tr></thead><tbody>';
+          contacts.forEach(c => {
+            html += '<tr><td>' + c.id + '</td><td><strong>' + c.name + '</strong></td><td><span class="text-info">' + c.email + '</span></td><td>' + c.subject + '</td><td><small class="text-muted">' + (c.message ? c.message.substring(0, 45) : '') + '...</small></td><td><small class="text-muted">' + new Date(c.created_at).toLocaleDateString() + '</small></td></tr>';
+          });
+          html += '</tbody></table></div></div>';
+          document.getElementById('contactsList').innerHTML = html;
+        }).catch(() => document.getElementById('contactsList').innerHTML = '<div class="alert alert-danger">Error loading messages.</div>');
+      }
+    });
+  </script>
+</body>
+</html>
+

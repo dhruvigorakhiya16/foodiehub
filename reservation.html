@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reserve a Table | Foodie Hub</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="images/logo.png" type="image/png">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* Small reservation-page-specific polish on top of the shared
+           dark glassmorphism theme (no light-theme overrides). */
+        section {
+            padding: 90px 0;
+        }
+
+        .reservation-info-card i {
+            color: #d4af37;
+        }
+
+        @media(max-width:768px) {
+            section { padding: 70px 0; }
+            .reservation-card { padding: 25px; }
+        }
+    </style>
+
+</head>
+<body>
+ 
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3" href="index.html"><i class="fas fa-utensils me-2"></i>Foodie Hub</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-book-open me-1"></i>Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html"><i class="fas fa-info-circle me-1"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-clipboard-list me-1"></i>Orders</a></li>
+        </ul>
+<div class="d-flex align-items-center gap-2" id="navAuthBtns"></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="reservation-hero d-flex align-items-center justify-content-center text-center text-white">
+    <div data-aos="fade-up">
+      <h1 class="display-4 fw-bold">Reserve a Table</h1>
+      <p class="lead fs-5">Book your dining experience at Foodie Hub</p>
+    </div>
+  </section>
+
+  <section class="reservation-page-section">
+    <div class="container slide-blur-pop-up">
+      <div class="row g-5">
+        <div class="col-12 col-lg-7" data-aos="fade-right">
+          <div class="reservation-card">
+            <h3 class="fw-bold mb-4"><i class="fas fa-calendar-alt text-warning me-2"></i>Book Your Table</h3>
+            <div id="reservePageAlert" class="alert d-none"></div>
+            <form id="reservePageForm">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">👤 Full Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control form-control-lg" id="resPageName" placeholder="Your Name" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">📧 Email</label>
+                  <input type="email" class="form-control form-control-lg" id="resPageEmail" placeholder="email@example.com">
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">📱 Phone Number <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control form-control-lg" id="resPagePhone" placeholder="+91 9876543210" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">👥 Number of Guests <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-lg" id="resPageGuests" required>
+                    <option value="">Select guests</option>
+                    <option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option>
+                    <option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6+ Guests</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">📅 Date <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control form-control-lg" id="resPageDate" required>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label fw-medium">⏰ Time <span class="text-danger">*</span></label>
+                  <input type="time" class="form-control form-control-lg" id="resPageTime" required>
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-medium">💬 Special Requests</label>
+                  <textarea class="form-control form-control-lg" id="resPageMessage" rows="3" placeholder="Any special requests or dietary requirements..."></textarea>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-warning btn-lg w-100 rounded-pill fw-semibold py-3" id="resPageSubmitBtn">
+                    <span id="resPageBtnText"><i class="fas fa-check-circle me-2"></i>Confirm Reservation</span>
+                    <span id="resPageBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="col-12 col-lg-5" data-aos="fade-left">
+          <div class="reservation-info-card">
+            <h4 class="fw-bold mb-4"><i class="fas fa-info-circle me-2"></i>Reservation Info</h4>
+            <div class="d-flex align-items-start mb-4">
+              <i class="fas fa-clock fa-2x me-3 mt-1"></i>
+              <div><h6 class="fw-bold text-white">Working Hours</h6><p class="mb-0 small opacity-75">Mon - Fri: 11:00 AM - 11:00 PM<br>Sat - Sun: 10:00 AM - 12:00 AM</p></div>
+            </div>
+            <div class="d-flex align-items-start mb-4">
+              <i class="fas fa-phone-alt fa-2x me-3 mt-1"></i>
+              <div><h6 class="fw-bold text-white">Call Us</h6><p class="mb-0 small opacity-75">+91 98765 43210</p></div>
+            </div>
+            <div class="d-flex align-items-start mb-4">
+              <i class="fas fa-users fa-2x me-3 mt-1"></i>
+              <div><h6 class="fw-bold text-white">Group Dining</h6><p class="mb-0 small opacity-75">For groups of 8+, please call us directly.</p></div>
+            </div>
+            <div class="d-flex align-items-start">
+              <i class="fas fa-shield-alt fa-2x me-3 mt-1"></i>
+              <div><h6 class="fw-bold text-white">COVID-19 Safety</h6><p class="mb-0 small opacity-75">We follow all safety guidelines. Masks required when not seated.</p></div>
+            </div>
+            <hr class="border-light opacity-25 my-4">
+            <div class="text-center">
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <i class="fas fa-star text-warning"></i>
+              <p class="mt-2 small opacity-75">Rated 4.8/5 by our guests</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- Unified Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-sign-in-alt me-2 text-warning"></i>Login to Foodie Hub</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalLoginAlert" class="alert d-none"></div>
+          <form id="modalLoginForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" class="form-control" id="modalLoginEmail" placeholder="you@example.com" required>
+              </div>
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-medium">Password</label>
+              <div class="input-group password-input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control" id="modalLoginPassword" placeholder="Enter your password" autocomplete="current-password" required minlength="6">
+                <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleModalLoginPassword" tabindex="-1" aria-label="Show password">
+                  <i class="fas fa-eye" id="toggleModalLoginPasswordIcon"></i>
+                </button>
+                <div class="invalid-feedback">Password must be at least 6 characters.</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold rounded-pill" id="modalLoginBtn">
+              <span id="modalLoginBtnText">Sign In</span>
+              <span id="modalLoginBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+            </button>
+          </form>
+          <p class="text-center mt-3 mb-0 small">
+            New to Foodie Hub? <a href="Register.html" class="auth-link">Create an account</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservation Modal (for the dynamic navbar Reserve button) -->
+  <div class="modal fade" id="reserveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2 text-warning"></i>Reserve a Table</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="reserveAlert" class="alert d-none"></div>
+          <form id="reserveForm">
+            <div class="row g-3">
+              <div class="col-12"><input type="text" class="form-control" id="resName" placeholder="Your Name" required></div>
+              <div class="col-6"><input type="email" class="form-control" id="resEmail" placeholder="Email (optional)"></div>
+              <div class="col-6"><input type="tel" class="form-control" id="resPhone" placeholder="Phone Number" required></div>
+              <div class="col-6"><input type="date" class="form-control" id="resDate" required></div>
+              <div class="col-6"><input type="time" class="form-control" id="resTime" required></div>
+              <div class="col-12">
+                <select class="form-select" id="resGuests" required>
+                  <option value="">Number of Guests</option>
+                  <option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option>
+                  <option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6+ Guests</option>
+                </select>
+              </div>
+              <div class="col-12"><textarea class="form-control" id="resMessage" rows="2" placeholder="Special requests (optional)"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" id="reserveSubmitBtn">
+            <span id="reserveBtnText">Confirm Reservation</span>
+            <span id="reserveBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartAlert" class="alert d-none"></div>
+          <div id="cartContainer">
+            <div class="cart-empty" id="cartEmpty">
+              <i class="fas fa-shopping-basket"></i>
+              <p class="mb-0">Your cart is empty</p>
+              <p class="small text-muted">Add items from our menu to get started</p>
+            </div>
+            <div id="cartItems" class="d-none"></div>
+            <div id="cartSummary" class="cart-summary d-none">
+              <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div class="cart-summary-row"><span>GST (5%)</span><span id="cartTax">₹0.00</span></div>
+              <div class="cart-summary-row"><span>Delivery Fee</span><span id="cartDeliveryFee">₹40.00</span></div>
+              <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹40.00</span></div>
+            </div>
+          </div>
+          <div id="checkoutForm" class="d-none">
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2 text-warning"></i>Delivery Details</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Full Name *</label>
+                <input type="text" class="form-control" id="orderName" placeholder="Your name" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Phone Number *</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Email</label>
+                <input type="email" class="form-control" id="orderEmail" placeholder="your@email.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Payment Method</label>
+                <select class="form-select" id="orderPayment">
+                  <option value="cod">Cash on Delivery</option>
+                  <option value="online">Online Payment (UPI/Card)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-medium">Delivery Address *</label>
+                <textarea class="form-control" id="orderAddress" rows="2" placeholder="House/Flat No., Street, Landmark, City" required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartBtn">
+              <i class="fas fa-trash me-1"></i>Clear Cart
+            </button>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Continue Shopping</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold d-none" id="checkoutBtn">
+              <i class="fas fa-credit-card me-1"></i>Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal fade" id="orderConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-4">
+        <div class="modal-body">
+          <div class="order-success-icon mb-3">
+            <i class="fas fa-check-circle fa-4x text-success"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Order Placed! 🎉</h4>
+          <p class="text-muted mb-1">Your order has been confirmed.</p>
+          <p class="mb-3"><strong>Order #<span id="confirmOrderId">0000</span></strong></p>
+          <p class="small text-muted mb-3">Total Amount: <strong class="text-success" id="confirmOrderTotal">₹0.00</strong></p>
+          <p class="small text-muted mb-0">We'll deliver it to your address shortly.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pt-0">
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal" id="continueShoppingBtn">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <h5 class="footer-brand"><i class="fas fa-utensils me-2"></i>Foodie Hub</h5>
+          <p class="footer-text">Where every meal is a celebration of flavor.</p>
+          <div class="footer-social"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="menu.html">Menu</a></li><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li></ul>
+        </div>
+        <div class="col-6 col-md-3">
+          <h6 class="footer-heading">Contact Info</h6>
+          <ul class="footer-links"><li><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, Mumbai</li><li><i class="fas fa-phone me-2"></i>+91 98765 43210</li><li><i class="fas fa-envelope me-2"></i>info@foodiehub.in</li></ul>
+        </div>
+        <div class="col-12 col-md-3">
+          <h6 class="footer-heading">Working Hours</h6>
+          <ul class="footer-links"><li>Mon - Fri: 11:00 AM - 11:00 PM</li><li>Sat - Sun: 10:00 AM - 12:00 AM</li></ul>
+        </div>
+      </div>
+      <hr class="footer-divider"><p class="footer-copyright text-center">© 2024 Foodie Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+const API_URL = '/api';
+      const form = document.getElementById('reservePageForm');
+      const submitBtn = document.getElementById('resPageSubmitBtn');
+      const btnText = document.getElementById('resPageBtnText');
+      const spinner = document.getElementById('resPageBtnSpinner');
+      const alertBox = document.getElementById('reservePageAlert');
+
+      // Set min date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('resPageDate').setAttribute('min', today);
+      document.getElementById('resPageDate').value = today;
+
+      // Navbar "Reserve" button scrolls to the booking form (this page has
+      // its own full reservation form instead of the shared modal).
+      const reserveNavBtn = document.getElementById('reserveNavBtn');
+      if (reserveNavBtn) {
+        reserveNavBtn.addEventListener('click', function () {
+          const formSection = document.querySelector('.reservation-page-section');
+          if (formSection) {
+            formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('resPageName').value.trim();
+        const email = document.getElementById('resPageEmail').value.trim();
+        const phone = document.getElementById('resPagePhone').value.trim();
+        const date = document.getElementById('resPageDate').value;
+        const time = document.getElementById('resPageTime').value;
+        const guests = document.getElementById('resPageGuests').value;
+        const message = document.getElementById('resPageMessage').value.trim();
+
+        const toast = (msg, type) => {
+          if (window.showFloatingToast) {
+            window.showFloatingToast(msg, type);
+          }
+        };
+
+        if (!name || !phone || !date || !time || !guests) {
+          alertBox.className = 'alert alert-danger'; alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please fill all required fields.';
+          alertBox.classList.remove('d-none'); toast('⚠️ Please fill all required fields.', 'warning'); return;
+        }
+        if (name.trim().length < 2) {
+          alertBox.className = 'alert alert-danger'; alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please enter your full name.';
+          alertBox.classList.remove('d-none'); toast('⚠️ Please enter your full name.', 'warning'); document.getElementById('resPageName').focus(); return;
+        }
+        if (!/^[\d\+\-\(\)\s]{7,15}$/.test(phone)) {
+          alertBox.className = 'alert alert-danger'; alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please enter a valid phone number.';
+          alertBox.classList.remove('d-none'); toast('⚠️ Please enter a valid phone number.', 'warning'); document.getElementById('resPagePhone').focus(); return;
+        }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          alertBox.className = 'alert alert-danger'; alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please enter a valid email address.';
+          alertBox.classList.remove('d-none'); toast('⚠️ Please enter a valid email address.', 'warning'); document.getElementById('resPageEmail').focus(); return;
+        }
+        const selectedDate = new Date(date + 'T00:00:00');
+        const minDate = new Date();
+        minDate.setHours(0, 0, 0, 0);
+        if (selectedDate < minDate) {
+          alertBox.className = 'alert alert-danger'; alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please select a valid future date.';
+          alertBox.classList.remove('d-none'); toast('⚠️ Please select a valid future date.', 'warning'); document.getElementById('resPageDate').focus(); return;
+        }
+        alertBox.classList.add('d-none');
+        submitBtn.disabled = true; btnText.textContent = 'Submitting...'; spinner.classList.remove('d-none');
+
+        fetch(API_URL + '/reservations', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email: email || null, phone, res_date: date, res_time: time, guests: parseInt(guests), message: message || null })
+        })
+        .then(r => r.json())
+        .then(data => {
+          submitBtn.disabled = false; btnText.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirm Reservation'; spinner.classList.add('d-none');
+          if (data.reservation_id) {
+            alertBox.className = 'alert alert-success';
+            alertBox.innerHTML = '<i class="fas fa-check-circle me-2"></i>✅ Table reserved! We look forward to serving you 🍽️';
+            alertBox.classList.remove('d-none'); form.reset();
+            document.getElementById('resPageDate').value = today;
+            toast('✅ Table reserved successfully! We look forward to serving you 🍽️', 'success');
+          } else {
+            alertBox.className = 'alert alert-danger';
+            alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>' + (data.message || 'Reservation failed');
+            alertBox.classList.remove('d-none');
+            toast('❌ ' + (data.message || 'Reservation failed'), 'error');
+          }
+        })
+        .catch(() => {
+          submitBtn.disabled = false; btnText.innerHTML = '<i class="fas fa-check-circle me-2"></i>Confirm Reservation'; spinner.classList.add('d-none');
+          alertBox.className = 'alert alert-danger';
+          alertBox.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Cannot connect to server. Make sure the backend is running.';
+          alertBox.classList.remove('d-none');
+          toast('❌ Cannot connect to server. Please try again.', 'error');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

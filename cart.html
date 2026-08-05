@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Hub - My Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .cart-page-section {
+      min-height: 80vh;
+      background: linear-gradient(135deg, #fdf8f0 0%, #fff9f3 100%);
+      padding: 120px 0 60px;
+    }
+    .cart-table th {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      color: #2d0f0f;
+      border-bottom: 2px solid #d4af37;
+    }
+    .cart-item-img-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .cart-qty-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cart-qty-control .btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+    .cart-qty-control .qty-value {
+      min-width: 24px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .cart-grand-total {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #c0392b;
+    }
+    .cart-summary-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid rgba(212, 175, 55, 0.1);
+      padding: 24px;
+      position: sticky;
+      top: 100px;
+    }
+    .cart-empty-large {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .cart-empty-large i {
+      font-size: 4rem;
+      color: #4d3c05;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3" href="index.html"><i class="fas fa-utensils me-2"></i>Foodie Hub</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-book-open me-1"></i>Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html"><i class="fas fa-info-circle me-1"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-clipboard-list me-1"></i>Orders</a></li>
+        </ul>
+<div class="d-flex align-items-center gap-2" id="navAuthBtns"></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="cart-page-section">
+    <div class="container slide-blur-pop-up">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0">My Cart</h2>
+        <div>
+          <button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartPageBtn"><i class="fas fa-trash me-1"></i>Clear All</button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div id="cartLoading" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3 text-muted">Loading your cart...</p>
+      </div>
+
+      <!-- Error -->
+      <div id="cartError" class="alert alert-danger text-center d-none">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Unable to load cart. Make sure the backend server is running.
+      </div>
+
+      <!-- Empty Cart -->
+      <div id="cartEmptyState" class="cart-empty-large d-none">
+        <i class="fas fa-shopping-basket"></i>
+        <h4 class="fw-bold text-muted">Your cart is empty</h4>
+        <p class="text-muted">Looks like you haven't added anything yet.</p>
+        <a href="menu.html" class="btn btn-warning rounded-pill px-4 fw-semibold"><i class="fas fa-utensils me-2"></i>Browse Menu</a>
+      </div>
+
+      <!-- Cart Content -->
+      <div id="cartContent" class="d-none">
+        <div class="row g-4">
+          <!-- Cart Items Table -->
+          <div class="col-12 col-lg-8">
+            <div class="table-responsive">
+              <table class="table cart-table align-middle">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="cartTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Order Summary Sidebar -->
+          <div class="col-12 col-lg-4">
+            <div class="cart-summary-card">
+              <h5 class="fw-bold mb-4"><i class="fas fa-receipt me-2 text-warning"></i>Order Summary</h5>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Subtotal</span>
+                <span class="fw-semibold" id="cartSubtotalPage">₹0.00</span>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">GST (5%)</span>
+                <span class="fw-semibold" id="cartTaxPage">₹0.00</span>
+              </div>
+              <div class="d-flex justify-content-between mb-3">
+                <span class="text-muted">Delivery Fee</span>
+                <span class="fw-semibold" id="cartDeliveryFeePage">₹40.00</span>
+              </div>
+              <hr>
+              <div class="d-flex justify-content-between mb-4">
+                <span class="fw-bold">Grand Total</span>
+                <span class="cart-grand-total" id="cartGrandTotalPage">₹40.00</span>
+              </div>
+              <a href="checkout.html" class="btn btn-warning w-100 py-2 fw-semibold rounded-pill">
+                <i class="fas fa-credit-card me-2"></i>Proceed to Checkout
+              </a>
+              <a href="menu.html" class="btn btn-outline-warning w-100 py-2 fw-semibold rounded-pill mt-2">
+                <i class="fas fa-utensils me-2"></i>Continue Shopping
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <h5 class="footer-brand"><i class="fas fa-utensils me-2"></i>Foodie Hub</h5>
+          <p class="footer-text">Where every meal is a celebration of flavor.</p>
+          <div class="footer-social"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="menu.html">Menu</a></li><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li><li><a href="cart.html">Cart</a></li></ul>
+        </div>
+        <div class="col-6 col-md-3">
+          <h6 class="footer-heading">Contact Info</h6>
+          <ul class="footer-links"><li><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, Mumbai</li><li><i class="fas fa-phone me-2"></i>+91 98765 43210</li><li><i class="fas fa-envelope me-2"></i>info@foodiehub.in</li></ul>
+        </div>
+        <div class="col-12 col-md-3">
+          <h6 class="footer-heading">Working Hours</h6>
+          <ul class="footer-links"><li>Mon - Fri: 11:00 AM - 11:00 PM</li><li>Sat - Sun: 10:00 AM - 12:00 AM</li></ul>
+        </div>
+      </div>
+      <hr class="footer-divider"><p class="footer-copyright text-center">&copy; 2024 Foodie Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Reservation Modal -->
+  <div class="modal fade" id="reserveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2 text-warning"></i>Reserve a Table</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="reserveAlert" class="alert d-none"></div>
+          <form id="reserveForm">
+            <div class="row g-3">
+              <div class="col-12"><input type="text" class="form-control" id="resName" placeholder="Your Name" required></div>
+              <div class="col-6"><input type="email" class="form-control" id="resEmail" placeholder="Email (optional)"></div>
+              <div class="col-6"><input type="tel" class="form-control" id="resPhone" placeholder="Phone Number" required></div>
+              <div class="col-6"><input type="date" class="form-control" id="resDate" required></div>
+              <div class="col-6"><input type="time" class="form-control" id="resTime" required></div>
+              <div class="col-12"><select class="form-select" id="resGuests" required><option value="">Number of Guests</option><option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option><option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6+ Guests</option></select></div>
+              <div class="col-12"><textarea class="form-control" id="resMessage" rows="2" placeholder="Special requests (optional)"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" id="reserveSubmitBtn"><span id="reserveBtnText">Confirm Reservation</span><span id="reserveBtnSpinner" class="spinner-border spinner-border-sm d-none"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartAlert" class="alert d-none"></div>
+          <div id="cartContainer">
+            <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-basket"></i><p class="mb-0">Your cart is empty</p><p class="small text-muted">Add items from our menu to get started</p></div>
+            <div id="cartItems" class="d-none"></div>
+            <div id="cartSummary" class="cart-summary d-none">
+              <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div class="cart-summary-row"><span>GST (5%)</span><span id="cartTax">₹0.00</span></div>
+              <div class="cart-summary-row"><span>Delivery Fee</span><span id="cartDeliveryFee">₹40.00</span></div>
+              <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹40.00</span></div>
+            </div>
+          </div>
+          <div id="checkoutForm" class="d-none">
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2 text-warning"></i>Delivery Details</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Full Name *</label>
+                <input type="text" class="form-control" id="orderName" placeholder="Your name" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Phone Number *</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Email</label>
+                <input type="email" class="form-control" id="orderEmail" placeholder="your@email.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Payment Method</label>
+                <select class="form-select" id="orderPayment"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (UPI/Card)</option></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-medium">Delivery Address *</label>
+                <textarea class="form-control" id="orderAddress" rows="2" placeholder="House/Flat No., Street, Landmark, City" required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-between align-items-center">
+          <div><button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartBtn"><i class="fas fa-trash me-1"></i>Clear Cart</button></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Continue Shopping</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold d-none" id="checkoutBtn"><i class="fas fa-credit-card me-1"></i>Place Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal fade" id="orderConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-4">
+        <div class="modal-body">
+          <div class="order-success-icon mb-3">
+            <i class="fas fa-check-circle fa-4x text-success"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Order Placed! 🎉</h4>
+          <p class="text-muted mb-1">Your order has been confirmed.</p>
+          <p class="mb-3"><strong>Order #<span id="confirmOrderId">0000</span></strong></p>
+          <p class="small text-muted mb-3">Total Amount: <strong class="text-success" id="confirmOrderTotal">₹0.00</strong></p>
+          <p class="small text-muted mb-0">We'll deliver it to your address shortly.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pt-0">
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal" id="continueShoppingBtn">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    // ===== CART PAGE SPECIFIC LOGIC =====
+    document.addEventListener('DOMContentLoaded', function () {
+       const user = localStorage.getItem("foodiehub_user");
+    if(!user){
+        showFloatingToast(
+        "⚠️ You are not logged in. Please login to view cart.",
+        "error"
+        );
+        setTimeout(()=>{
+            window.location.href="login.html";
+        },1500);
+    }
+
+const API_URL = '/api';
+
+      function loadCartPage() {
+        const loading = document.getElementById('cartLoading');
+        const errorEl = document.getElementById('cartError');
+        const emptyState = document.getElementById('cartEmptyState');
+        const content = document.getElementById('cartContent');
+        const tableBody = document.getElementById('cartTableBody');
+        const clearBtn = document.getElementById('clearCartPageBtn');
+
+        loading.classList.remove('d-none');
+        errorEl.classList.add('d-none');
+        emptyState.classList.add('d-none');
+        content.classList.add('d-none');
+        clearBtn.classList.add('d-none');
+
+        // Get cart from localStorage
+        let cart = [];
+        try {
+          cart = JSON.parse(localStorage.getItem('foodiehub_cart')) || [];
+        } catch (e) {}
+
+        loading.classList.add('d-none');
+
+        if (cart.length === 0) {
+          emptyState.classList.remove('d-none');
+          return;
+        }
+
+        content.classList.remove('d-none');
+        clearBtn.classList.remove('d-none');
+
+        // Build table rows
+        let html = '';
+        let subtotal = 0;
+        cart.forEach(item => {
+          const itemTotal = item.price * item.quantity;
+          subtotal += itemTotal;
+          const img = item.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80';
+          html += `
+            <tr data-id="${item.id}">
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <img src="${img}" alt="${item.name}" class="cart-item-img-thumb" onerror="this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80'">
+                  <div>
+                    <div class="fw-semibold">${item.name}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="fw-semibold">${formatPrice(item.price)}</td>
+              <td>
+                <div class="cart-qty-control">
+                  <button class="btn btn-outline-warning btn-sm" onclick="pageUpdateQty(${item.id}, -1)"><i class="fas fa-minus"></i></button>
+                  <span class="qty-value">${item.quantity}</span>
+                  <button class="btn btn-outline-warning btn-sm" onclick="pageUpdateQty(${item.id}, 1)"><i class="fas fa-plus"></i></button>
+                </div>
+              </td>
+              <td class="fw-bold">${formatPrice(itemTotal)}</td>
+              <td>
+                <button class="btn btn-outline-danger btn-sm rounded-circle" onclick="pageRemoveItem(${item.id})" title="Remove"><i class="fas fa-times"></i></button>
+              </td>
+            </tr>
+          `;
+        });
+        tableBody.innerHTML = html;
+
+        // Update summary
+        const tax = subtotal * 0.05;
+        const deliveryFee = subtotal > 0 ? 40 : 0;
+        const total = subtotal + tax + deliveryFee;
+
+        document.getElementById('cartSubtotalPage').textContent = formatPrice(subtotal);
+        document.getElementById('cartTaxPage').textContent = formatPrice(tax);
+        document.getElementById('cartDeliveryFeePage').textContent = formatPrice(deliveryFee);
+        document.getElementById('cartGrandTotalPage').textContent = formatPrice(total);
+      }
+
+      window.pageUpdateQty = function (id, delta) {
+        let cart = JSON.parse(localStorage.getItem('foodiehub_cart')) || [];
+        const item = cart.find(i => i.id === id);
+        if (!item) return;
+        item.quantity += delta;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.id !== id);
+        }
+        localStorage.setItem('foodiehub_cart', JSON.stringify(cart));
+        loadCartPage();
+        updateCartBadge();
+      };
+
+      window.pageRemoveItem = function (id) {
+        let cart = JSON.parse(localStorage.getItem('foodiehub_cart')) || [];
+        cart = cart.filter(i => i.id !== id);
+        localStorage.setItem('foodiehub_cart', JSON.stringify(cart));
+        loadCartPage();
+        updateCartBadge();
+      };
+
+      // Clear all
+      document.getElementById('clearCartPageBtn').addEventListener('click', function () {
+        if (confirm('Clear all items from cart?')) {
+          localStorage.setItem('foodiehub_cart', JSON.stringify([]));
+          loadCartPage();
+          updateCartBadge();
+        }
+      });
+
+      loadCartPage();
+    });
+  </script>
+</body>
+</html>

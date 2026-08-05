@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Hub - My Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .profile-section { min-height: 100vh; background: linear-gradient(135deg, #fdf8f0 0%, #fff9f3 100%); padding: 120px 0 60px; }
+    .profile-sidebar { background: linear-gradient(135deg, #2d0f0f 0%, #1a0a0a 100%); border-radius: 20px; padding: 30px; color: #f5e6cc; text-align: center; }
+    .profile-sidebar .avatar { width: 80px; height: 80px; border-radius: 50%; background: #d4af37; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #2d0f0f; margin: 0 auto 15px; }
+    .profile-card { background: #fff; border-radius: 20px; padding: 30px; box-shadow: 0 5px 20px rgba(0,0,0,0.06); border: 1px solid rgba(212,175,55,0.1); }
+    .profile-tab { cursor: pointer; padding: 12px 20px; border-radius: 12px; transition: all 0.3s; margin-bottom: 5px; color: rgba(245,230,204,0.7); }
+    .profile-tab:hover, .profile-tab.active { background: rgba(212,175,55,0.15); color: #d4af37; }
+    .profile-tab i { margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3" href="index.html"><i class="fas fa-utensils me-2"></i>Foodie Hub</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-book-open me-1"></i>Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html"><i class="fas fa-info-circle me-1"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-clipboard-list me-1"></i>Orders</a></li>
+        </ul>
+<div class="d-flex align-items-center gap-2" id="navAuthBtns"></div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="profile-section">
+    <div class="container slide-blur-pop-up">
+      <div class="row g-4">
+        <div class="col-12 col-lg-4">
+          <div class="profile-sidebar" data-aos="fade-right">
+            <div class="avatar"><i class="fas fa-user"></i></div>
+            <h4 class="fw-bold text-white" id="profileName">Guest</h4>
+            <p class="small opacity-75" id="profileEmail">Not logged in</p>
+            <hr class="border-light opacity-25">
+            <div class="text-start">
+              <div class="profile-tab active" data-tab="edit-profile"><i class="fas fa-user-edit"></i>Edit Profile</div>
+              <div class="profile-tab" data-tab="change-password"><i class="fas fa-key"></i>Change Password</div>
+              <div class="profile-tab" data-tab="my-orders"><i class="fas fa-clipboard-list"></i>My Orders</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-lg-8">
+          <!-- Edit Profile Tab -->
+          <div id="tab-edit-profile" class="profile-card tab-content" data-aos="fade-left">
+            <h4 class="fw-bold mb-4"><i class="fas fa-user-edit text-warning me-2"></i>Edit Profile</h4>
+            <div id="profileAlert" class="alert d-none"></div>
+            <form id="editProfileForm">
+              <div class="row g-3">
+                <div class="col-12 col-md-6"><label class="form-label fw-medium">👤 Full Name</label><input type="text" class="form-control form-control-lg" id="profName" required></div>
+                <div class="col-12 col-md-6"><label class="form-label fw-medium">📧 Email</label><input type="email" class="form-control form-control-lg" id="profEmail" required></div>
+                <div class="col-12 col-md-6"><label class="form-label fw-medium">📱 Phone</label><input type="tel" class="form-control form-control-lg" id="profPhone" required></div>
+                <div class="col-12"><label class="form-label fw-medium">📍 Address</label><textarea class="form-control form-control-lg" id="profAddress" rows="2"></textarea></div>
+                <div class="col-12"><button type="submit" class="btn btn-warning rounded-pill px-5 fw-semibold" id="updateProfileBtn"><i class="fas fa-save me-2"></i>Save Changes</button></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Change Password Tab -->
+          <div id="tab-change-password" class="profile-card tab-content d-none" data-aos="fade-left">
+            <h4 class="fw-bold mb-4"><i class="fas fa-key text-warning me-2"></i>Change Password</h4>
+            <div id="passwordAlert" class="alert d-none"></div>
+            <form id="changePasswordForm">
+              <div class="row g-3">
+                <div class="col-12"><label class="form-label fw-medium">🔒 Current Password</label><input type="password" class="form-control form-control-lg" id="currentPass" required></div>
+                <div class="col-12 col-md-6"><label class="form-label fw-medium">🔑 New Password</label><input type="password" class="form-control form-control-lg" id="newPass" required></div>
+                <div class="col-12 col-md-6"><label class="form-label fw-medium">✓ Confirm New Password</label><input type="password" class="form-control form-control-lg" id="confirmPass" required></div>
+                <div class="col-12"><button type="submit" class="btn btn-warning rounded-pill px-5 fw-semibold" id="changePassBtn"><i class="fas fa-save me-2"></i>Update Password</button></div>
+              </div>
+            </form>
+          </div>
+
+          <!-- My Orders Tab -->
+          <div id="tab-my-orders" class="profile-card tab-content d-none" data-aos="fade-left">
+            <h4 class="fw-bold mb-4"><i class="fas fa-clipboard-list text-warning me-2"></i>My Orders</h4>
+            <div id="profileOrdersLoading" class="text-center py-4"><div class="spinner-border text-warning"></div><p class="mt-2 text-muted">Loading orders...</p></div>
+            <div id="profileOrdersError" class="alert alert-danger d-none"></div>
+            <div id="profileOrdersEmpty" class="text-center py-4 d-none"><i class="fas fa-shopping-basket fa-3x text-muted mb-3"></i><p class="text-muted">No orders yet.</p><a href="menu.html" class="btn btn-warning rounded-pill px-4">Browse Menu</a></div>
+            <div id="profileOrdersList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <h5 class="footer-brand"><i class="fas fa-utensils me-2"></i>Foodie Hub</h5>
+          <p class="footer-text">Where every meal is a celebration of flavor.</p>
+          <div class="footer-social"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="menu.html">Menu</a></li><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li></ul>
+        </div>
+        <div class="col-6 col-md-3">
+          <h6 class="footer-heading">Contact Info</h6>
+          <ul class="footer-links"><li><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, Mumbai</li><li><i class="fas fa-phone me-2"></i>+91 98765 43210</li><li><i class="fas fa-envelope me-2"></i>info@foodiehub.in</li></ul>
+        </div>
+        <div class="col-12 col-md-3">
+          <h6 class="footer-heading">Working Hours</h6>
+          <ul class="footer-links"><li>Mon - Fri: 11:00 AM - 11:00 PM</li><li>Sat - Sun: 10:00 AM - 12:00 AM</li></ul>
+        </div>
+      </div>
+      <hr class="footer-divider"><p class="footer-copyright text-center">&copy; 2024 Foodie Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Reservation Modal -->
+  <div class="modal fade" id="reserveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2 text-warning"></i>Reserve a Table</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="reserveAlert" class="alert d-none"></div>
+          <form id="reserveForm">
+            <div class="row g-3">
+              <div class="col-12"><input type="text" class="form-control" id="resName" placeholder="Your Name" required></div>
+              <div class="col-6"><input type="email" class="form-control" id="resEmail" placeholder="Email (optional)"></div>
+              <div class="col-6"><input type="tel" class="form-control" id="resPhone" placeholder="Phone Number" required></div>
+              <div class="col-6"><input type="date" class="form-control" id="resDate" required></div>
+              <div class="col-6"><input type="time" class="form-control" id="resTime" required></div>
+              <div class="col-12"><select class="form-select" id="resGuests" required><option value="">Number of Guests</option><option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option><option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6+ Guests</option></select></div>
+              <div class="col-12"><textarea class="form-control" id="resMessage" rows="2" placeholder="Special requests (optional)"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" id="reserveSubmitBtn"><span id="reserveBtnText">Confirm Reservation</span><span id="reserveBtnSpinner" class="spinner-border spinner-border-sm d-none"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartAlert" class="alert d-none"></div>
+          <div id="cartContainer">
+            <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-basket"></i><p class="mb-0">Your cart is empty</p><p class="small text-muted">Add items from our menu to get started</p></div>
+            <div id="cartItems" class="d-none"></div>
+            <div id="cartSummary" class="cart-summary d-none">
+              <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div class="cart-summary-row"><span>GST (5%)</span><span id="cartTax">₹0.00</span></div>
+              <div class="cart-summary-row"><span>Delivery Fee</span><span id="cartDeliveryFee">₹40.00</span></div>
+              <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹40.00</span></div>
+            </div>
+          </div>
+          <div id="checkoutForm" class="d-none">
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2 text-warning"></i>Delivery Details</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Full Name *</label>
+                <input type="text" class="form-control" id="orderName" placeholder="Your name" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Phone Number *</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Email</label>
+                <input type="email" class="form-control" id="orderEmail" placeholder="your@email.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Payment Method</label>
+                <select class="form-select" id="orderPayment"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (UPI/Card)</option></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-medium">Delivery Address *</label>
+                <textarea class="form-control" id="orderAddress" rows="2" placeholder="House/Flat No., Street, Landmark, City" required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-between align-items-center">
+          <div><button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartBtn"><i class="fas fa-trash me-1"></i>Clear Cart</button></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Continue Shopping</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold d-none" id="checkoutBtn"><i class="fas fa-credit-card me-1"></i>Place Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal fade" id="orderConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-4">
+        <div class="modal-body">
+          <div class="order-success-icon mb-3"><i class="fas fa-check-circle fa-4x text-success"></i></div>
+          <h4 class="fw-bold mb-2">Order Placed! 🎉</h4>
+          <p class="text-muted mb-1">Your order has been confirmed.</p>
+          <p class="mb-3"><strong>Order #<span id="confirmOrderId">0000</span></strong></p>
+          <p class="small text-muted mb-3">Total Amount: <strong class="text-success" id="confirmOrderTotal">₹0.00</strong></p>
+          <p class="small text-muted mb-0">We'll deliver it to your address shortly.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pt-0">
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal" id="continueShoppingBtn">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="js/script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+const API_URL = '/api';
+      const userData = JSON.parse(localStorage.getItem('foodiehub_user') || '{}');
+
+      if (!userData.id) {
+        document.getElementById('profileName').textContent = 'Guest';
+        document.getElementById('profileEmail').textContent = 'Not logged in';
+        document.querySelectorAll('#editProfileForm input, #editProfileForm textarea, #changePasswordForm input').forEach(el => el.disabled = true);
+        document.querySelectorAll('button[type="submit"]').forEach(b => b.disabled = true);
+        document.getElementById('profileOrdersEmpty').classList.remove('d-none');
+        document.getElementById('profileOrdersLoading').classList.add('d-none');
+        return;
+      }
+
+      document.getElementById('profileName').textContent = userData.name;
+      document.getElementById('profileEmail').textContent = userData.email;
+      document.getElementById('profName').value = userData.name || '';
+      document.getElementById('profEmail').value = userData.email || '';
+      document.getElementById('profPhone').value = userData.phone_no || '';
+
+      // Load profile
+      fetch(API_URL + '/user/profile/' + userData.id)
+        .then(r => r.json())
+        .then(data => {
+          document.getElementById('profName').value = data.name || '';
+          document.getElementById('profEmail').value = data.email || '';
+          document.getElementById('profPhone').value = data.phone_no || '';
+          document.getElementById('profAddress').value = data.address || '';
+        }).catch(() => {});
+
+      // Tab switching
+      document.querySelectorAll('.profile-tab').forEach(tab => {
+        tab.addEventListener('click', function () {
+          document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          document.querySelectorAll('.tab-content').forEach(t => t.classList.add('d-none'));
+          document.getElementById('tab-' + this.dataset.tab).classList.remove('d-none');
+          if (this.dataset.tab === 'my-orders') loadProfileOrders();
+        });
+      });
+
+      // Edit Profile
+      document.getElementById('editProfileForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const alertBox = document.getElementById('profileAlert');
+        const name = document.getElementById('profName').value.trim();
+        const email = document.getElementById('profEmail').value.trim();
+        const phone = document.getElementById('profPhone').value.trim();
+        const address = document.getElementById('profAddress').value.trim();
+        if (!name || !email || !phone) { alertBox.className = 'alert alert-danger'; alertBox.textContent = 'Name, email, and phone are required.'; alertBox.classList.remove('d-none'); return; }
+        alertBox.classList.add('d-none');
+        fetch(API_URL + '/user/profile/' + userData.id, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, phone_no: phone, address })
+        })
+        .then(r => r.json()).then(data => {
+          alertBox.className = 'alert alert-' + (data.message.includes('success') ? 'success' : 'danger');
+          alertBox.textContent = data.message; alertBox.classList.remove('d-none');
+          if (data.message.includes('success')) {
+            userData.name = name; userData.email = email; userData.phone_no = phone;
+            localStorage.setItem('foodiehub_user', JSON.stringify(userData));
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = email;
+          }
+        }).catch(() => {
+          alertBox.className = 'alert alert-danger'; alertBox.textContent = 'Connection error.';
+          alertBox.classList.remove('d-none');
+        });
+      });
+
+      // Change Password
+      document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const alertBox = document.getElementById('passwordAlert');
+        const current = document.getElementById('currentPass').value;
+        const newPass = document.getElementById('newPass').value;
+        const confirm = document.getElementById('confirmPass').value;
+        if (newPass !== confirm) { alertBox.className = 'alert alert-danger'; alertBox.textContent = 'Passwords do not match!'; alertBox.classList.remove('d-none'); return; }
+        alertBox.classList.add('d-none');
+        fetch(API_URL + '/user/password/' + userData.id, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: current, new_password: newPass })
+        })
+        .then(r => r.json()).then(data => {
+          alertBox.className = 'alert alert-' + (data.message.includes('success') ? 'success' : 'danger');
+          alertBox.textContent = data.message; alertBox.classList.remove('d-none');
+          if (data.message.includes('success')) document.getElementById('changePasswordForm').reset();
+        }).catch(() => {
+          alertBox.className = 'alert alert-danger'; alertBox.textContent = 'Connection error.';
+          alertBox.classList.remove('d-none');
+        });
+      });
+
+      // Load My Orders
+      function loadProfileOrders() {
+        const loading = document.getElementById('profileOrdersLoading');
+        const errorEl = document.getElementById('profileOrdersError');
+        const empty = document.getElementById('profileOrdersEmpty');
+        const list = document.getElementById('profileOrdersList');
+        loading.classList.remove('d-none'); errorEl.classList.add('d-none'); empty.classList.add('d-none'); list.innerHTML = '';
+
+        fetch(API_URL + '/orders?user_id=' + userData.id)
+          .then(r => r.json()).then(orders => {
+            loading.classList.add('d-none');
+            if (!orders || orders.length === 0) { empty.classList.remove('d-none'); return; }
+            let html = '';
+            orders.forEach(o => {
+              const statusColors = { confirmed: 'success', preparing: 'warning', out_for_delivery: 'info', delivered: 'success', cancelled: 'danger' };
+              const statusIcons = { confirmed: 'fa-check-circle', preparing: 'fa-spinner', out_for_delivery: 'fa-truck', delivered: 'fa-check-double', cancelled: 'fa-times-circle' };
+              html += `<div class="border rounded-3 p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div><strong>Order #${o.id}</strong> <span class="badge bg-${statusColors[o.order_status] || 'secondary'}"><i class="fas ${statusIcons[o.order_status] || 'fa-circle'} me-1"></i>${o.order_status}</span></div>
+                  <small class="text-muted">${new Date(o.created_at).toLocaleDateString()}</small>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                  <span class="text-muted">${o.item_count} item(s) • ${o.payment_method}</span>
+                  <strong>₹${parseFloat(o.total_amount).toFixed(2)}</strong>
+                </div>
+                <button class="btn btn-sm btn-outline-warning rounded-pill mt-2" onclick="viewOrderDetail(${o.id})"><i class="fas fa-eye me-1"></i>View Details</button>
+              </div>`;
+            });
+            list.innerHTML = html;
+          }).catch(() => {
+            loading.classList.add('d-none');
+            errorEl.className = 'alert alert-danger'; errorEl.textContent = 'Error loading orders.';
+            errorEl.classList.remove('d-none');
+          });
+      }
+
+      window.viewOrderDetail = function (id) {
+        fetch(API_URL + '/orders/' + id).then(r => r.json()).then(data => {
+          let itemsHtml = data.items.map(i => `<div class="d-flex justify-content-between border-bottom pb-2 mb-2"><span>${i.item_name} × ${i.quantity}</span><span>₹${parseFloat(i.subtotal || i.price * i.quantity).toFixed(2)}</span></div>`).join('');
+          let infoHtml = `<p><strong>Customer:</strong> ${data.order.customer_name}<br><strong>Phone:</strong> ${data.order.phone}<br><strong>Address:</strong> ${data.order.address || 'N/A'}<br><strong>Payment:</strong> ${data.order.payment_method}<br><strong>Date:</strong> ${new Date(data.order.created_at).toLocaleString()}</p>`;
+          Swal.fire({ title: 'Order #' + id, html: infoHtml + '<hr>' + itemsHtml + `<hr><div class="d-flex justify-content-between fw-bold"><span>Total</span><span>₹${parseFloat(data.order.total_amount).toFixed(2)}</span></div>`, icon: 'info', confirmButtonColor: '#d4af37' });
+        }).catch(() => { Swal.fire({ icon: 'error', title: 'Error', text: 'Could not load order details.' }); });
+      };
+
+// Logout is handled by updateAuthNavbar() in script.js
+    });
+  </script>
+</body>
+</html>

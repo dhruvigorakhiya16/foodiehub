@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Hub - Login</title>
+  <script type="module" src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.9.4/dist/dotlottie-wc.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3" href="index.html"><i class="fas fa-utensils me-2"></i>Foodie Hub</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-book-open me-1"></i>Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html"><i class="fas fa-info-circle me-1"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="orders.html"><i class="fas fa-clipboard-list me-1"></i>Orders</a></li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <a href="login.html" class="btn btn-outline-light btn-sm rounded-pill px-3"><i class="fas fa-sign-in-alt me-1"></i>Login</a>
+          <a href="Register.html" class="btn btn-warning btn-sm rounded-pill px-3 text-dark fw-semibold"><i class="fas fa-user-plus me-1"></i>Register</a>
+          <button class="btn btn-info btn-sm rounded-pill px-3 position-relative" id="cartBtn" type="button"><i class="fas fa-shopping-cart me-1"></i>Cart<span id="cartBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">0</span></button>
+          <button class="btn btn-danger btn-sm rounded-pill px-3 ms-1" data-bs-toggle="modal" data-bs-target="#reserveModal"><i class="fas fa-calendar-check me-1"></i>Reserve</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Login Section -->
+  <section class="auth-section d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="container-fluid login-page">
+    <div class="row min-vh-100 align-items-center">
+
+        <!-- Left Side -->
+        <div class="col-lg-6">
+            <!-- Lottie Animation -->
+              <dotlottie-wc
+        src="https://lottie.host/d78c723b-1fa3-44e9-838b-b258ca1bec50/34TDu3FqsQ.lottie"
+        style="width:450px;height:450px"
+        autoplay
+        loop>
+    </dotlottie-wc>
+        </div>
+
+        <!-- Right Side -->
+        <div class="col-lg-6 d-flex justify-content-end align-items-center">
+
+            <div class="auth-card" >
+                <!-- Your complete login form here -->
+                 <div class="auth-header text-center mb-4">
+              <div class="auth-icon"><i class="fas fa-sign-in-alt"></i></div>
+              <h2 class="auth-title">Welcome Back</h2>
+              <p class="auth-subtitle text-muted">Sign in to your account</p>
+            </div>
+
+            <!-- Login Alert -->
+            <div id="loginAlert" class="alert d-none"></div>
+
+            <form id="loginForm" novalidate>
+              <div class="mb-3">
+                <label class="form-label">Email Address</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  <input type="email" class="form-control" id="loginEmail" placeholder="your@email.com" required>
+                </div>
+                <div class="invalid-feedback">Please enter a valid email address.</div>
+              </div>
+              <div class="mb-4">
+                <label class="form-label">Password</label>
+                <div class="input-group password-input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input type="password" class="form-control" id="loginPassword" placeholder="Enter password" autocomplete="current-password" required minlength="6">
+                  <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleLoginPassword" tabindex="-1" aria-label="Show password">
+                    <i class="fas fa-eye" id="toggleLoginPasswordIcon"></i>
+                  </button>
+                  <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold rounded-pill" id="loginBtn">
+                <span id="loginBtnText">Sign In</span>
+                <span id="loginBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+              </button>
+            </form>
+
+            <p class="text-center mt-4 mb-0">
+              Don't have an account? <a href="Register.html" class="auth-link">Register here</a>
+            </p>
+            </div>
+        </div>
+    </div>
+</div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <h5 class="footer-brand"><i class="fas fa-utensils me-2"></i>Foodie Hub</h5>
+          <p class="footer-text">Where every meal is a celebration of flavor. Experience the finest cuisine crafted with passion and the freshest ingredients.</p>
+          <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="col-6 col-md-2">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-md-3">
+          <h6 class="footer-heading">Contact Info</h6>
+          <ul class="footer-links">
+            <li><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, Mumbai</li>
+            <li><i class="fas fa-phone me-2"></i>+91 98765 43210</li>
+            <li><i class="fas fa-envelope me-2"></i>info@foodiehub.in</li>
+          </ul>
+        </div>
+        <div class="col-12 col-md-3">
+          <h6 class="footer-heading">Working Hours</h6>
+          <ul class="footer-links">
+            <li>Mon - Fri: 11:00 AM - 11:00 PM</li>
+            <li>Sat - Sun: 10:00 AM - 12:00 AM</li>
+          </ul>
+        </div>
+      </div>
+      <hr class="footer-divider">
+      <p class="footer-copyright text-center">&copy; 2024 Foodie Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Reservation Modal -->
+  <div class="modal fade" id="reserveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2 text-warning"></i>Reserve a Table</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="reserveAlert" class="alert d-none"></div>
+          <form id="reserveForm">
+            <div class="row g-3">
+              <div class="col-12"><input type="text" class="form-control" id="resName" placeholder="Your Name" required></div>
+              <div class="col-6"><input type="email" class="form-control" id="resEmail" placeholder="Email (optional)"></div>
+              <div class="col-6"><input type="tel" class="form-control" id="resPhone" placeholder="Phone Number" required></div>
+              <div class="col-6"><input type="date" class="form-control" id="resDate" required></div>
+              <div class="col-6"><input type="time" class="form-control" id="resTime" required></div>
+              <div class="col-12">
+                <select class="form-select" id="resGuests" required>
+                  <option value="">Number of Guests</option>
+                  <option value="1">1 Guest</option>
+                  <option value="2">2 Guests</option>
+                  <option value="3">3 Guests</option>
+                  <option value="4">4 Guests</option>
+                  <option value="5">5 Guests</option>
+                  <option value="6">6+ Guests</option>
+                </select>
+              </div>
+              <div class="col-12"><textarea class="form-control" id="resMessage" rows="2" placeholder="Special requests (optional)"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" id="reserveSubmitBtn">
+            <span id="reserveBtnText">Confirm Reservation</span>
+            <span id="reserveBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartAlert" class="alert d-none"></div>
+          <!-- Cart Items View -->
+          <div id="cartContainer">
+            <div class="cart-empty" id="cartEmpty"><i class="fas fa-shopping-basket"></i><p class="mb-0">Your cart is empty</p><p class="small text-muted">Add items from our menu to get started</p></div>
+            <div id="cartItems" class="d-none"></div>
+            <div id="cartSummary" class="cart-summary d-none">
+              <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div class="cart-summary-row"><span>GST (5%)</span><span id="cartTax">₹0.00</span></div>
+              <div class="cart-summary-row"><span>Delivery Fee</span><span id="cartDeliveryFee">₹40.00</span></div>
+              <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹40.00</span></div>
+            </div>
+          </div>
+          <!-- Checkout Form -->
+          <div id="checkoutForm" class="d-none">
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2 text-warning"></i>Delivery Details</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Full Name *</label>
+                <input type="text" class="form-control" id="orderName" placeholder="Your name" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Phone Number *</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Email</label>
+                <input type="email" class="form-control" id="orderEmail" placeholder="your@email.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Payment Method</label>
+                <select class="form-select" id="orderPayment"><option value="cod">Cash on Delivery</option><option value="online">Online Payment (UPI/Card)</option></select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-medium">Delivery Address *</label>
+                <textarea class="form-control" id="orderAddress" rows="2" placeholder="House/Flat No., Street, Landmark, City" required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-between align-items-center">
+          <div><button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartBtn"><i class="fas fa-trash me-1"></i>Clear Cart</button></div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Continue Shopping</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold d-none" id="checkoutBtn"><i class="fas fa-credit-card me-1"></i>Place Order</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal fade" id="orderConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-4">
+        <div class="modal-body">
+          <div class="order-success-icon mb-3"><i class="fas fa-check-circle fa-4x text-success"></i></div>
+          <h4 class="fw-bold mb-2">Order Placed! 🎉</h4>
+          <p class="text-muted mb-1">Your order has been confirmed.</p>
+          <p class="mb-3"><strong>Order #<span id="confirmOrderId">0000</span></strong></p>
+          <p class="small text-muted mb-3">Total Amount: <strong class="text-success" id="confirmOrderTotal">₹0.00</strong></p>
+          <p class="small text-muted mb-0">We'll deliver it to your address shortly.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pt-0">
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal" id="continueShoppingBtn">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
+

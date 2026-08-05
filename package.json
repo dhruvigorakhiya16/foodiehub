@@ -1,0 +1,13 @@
+{
+  "name": "foodie-hub-restaurant",
+  "version": "1.0.0",
+  "description": "Foodie Hub Restaurant Website - Frontend + Serverless API",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mysql2": "^3.23.1"
+  }
+}

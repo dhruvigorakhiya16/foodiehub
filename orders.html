@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Foodie Hub - My Orders</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- AOS CSS -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold fs-3" href="index.html"><i class="fas fa-utensils me-2"></i>Foodie Hub</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+<ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home me-1"></i>Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="menu.html"><i class="fas fa-book-open me-1"></i>Menu</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html"><i class="fas fa-info-circle me-1"></i>About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="contact.html"><i class="fas fa-envelope me-1"></i>Contact</a></li>
+          <li class="nav-item"><a class="nav-link active" href="orders.html"><i class="fas fa-clipboard-list me-1"></i>Orders</a></li>
+        </ul>
+<div class="d-flex align-items-center gap-2" id="navAuthBtns"></div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Orders Section -->
+  <section class="orders-section">
+    <div class="container slide-blur-pop-up">
+      <div class="text-center mb-5 pt-4">
+        <h2 class="section-title">My Orders</h2>
+        <p class="section-subtitle text-muted">Track all your orders in one place</p>
+      </div>
+
+      <!-- Loading -->
+      <div id="ordersLoading" class="text-center py-5">
+        <div class="spinner-border text-warning" role="status" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3 text-muted">Loading your orders...</p>
+      </div>
+
+      <!-- Error -->
+      <div id="ordersError" class="alert alert-danger text-center d-none">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Unable to load orders. Please make sure the backend server is running.
+      </div>
+
+      <!-- Not Logged In -->
+      <div id="ordersNotLoggedIn" class="text-center py-5 d-none">
+        <i class="fas fa-user-lock fa-4x text-warning mb-3"></i>
+        <h4 class="fw-bold text-muted">Please Sign In</h4>
+        <p class="text-muted">You need to be logged in to view your orders.</p>
+        <a href="login.html" class="btn btn-warning rounded-pill px-4 fw-semibold"><i class="fas fa-sign-in-alt me-2"></i>Sign In</a>
+      </div>
+
+      <!-- Empty Orders -->
+      <div id="ordersEmpty" class="text-center py-5 d-none">
+        <i class="fas fa-receipt fa-4x text-warning mb-3"></i>
+        <h4 class="fw-bold text-muted">No Orders Yet</h4>
+        <p class="text-muted">You haven't placed any orders yet. Start exploring our menu!</p>
+        <a href="menu.html" class="btn btn-warning rounded-pill px-4 fw-semibold"><i class="fas fa-utensils me-2"></i>Browse Menu</a>
+      </div>
+
+      <!-- Orders List -->
+      <div id="ordersContent" class="d-none">
+        <div id="ordersList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-12 col-md-4">
+          <h5 class="footer-brand"><i class="fas fa-utensils me-2"></i>Foodie Hub</h5>
+          <p class="footer-text">Where every meal is a celebration of flavor.</p>
+<div class="footer-social"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-youtube"></i></a></div>
+        </div>
+        <div class="col-6 col-md-2">
+          <h6 class="footer-heading">Quick Links</h6>
+          <ul class="footer-links"><li><a href="index.html">Home</a></li><li><a href="menu.html">Menu</a></li><li><a href="about.html">About Us</a></li><li><a href="contact.html">Contact</a></li><li><a href="orders.html">Orders</a></li><li><a href="cart.html">Cart</a></li></ul>
+        </div>
+        <div class="col-6 col-md-3">
+          <h6 class="footer-heading">Contact Info</h6>
+          <ul class="footer-links"><li><i class="fas fa-map-marker-alt me-2"></i>123 Food Street, Mumbai</li><li><i class="fas fa-phone me-2"></i>+91 98765 43210</li><li><i class="fas fa-envelope me-2"></i>info@foodiehub.in</li></ul>
+        </div>
+        <div class="col-12 col-md-3">
+          <h6 class="footer-heading">Working Hours</h6>
+          <ul class="footer-links"><li>Mon - Fri: 11:00 AM - 11:00 PM</li><li>Sat - Sun: 10:00 AM - 12:00 AM</li></ul>
+        </div>
+      </div>
+      <hr class="footer-divider"><p class="footer-copyright text-center">&copy; 2024 Foodie Hub. All rights reserved.</p>
+    </div>
+  </footer>
+
+<!-- Unified Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-sign-in-alt me-2 text-warning"></i>Login to Foodie Hub</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalLoginAlert" class="alert d-none"></div>
+          <form id="modalLoginForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label fw-medium">Email Address</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                <input type="email" class="form-control" id="modalLoginEmail" placeholder="you@example.com" required>
+              </div>
+              <div class="invalid-feedback">Please enter a valid email address.</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-medium">Password</label>
+              <div class="input-group password-input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control" id="modalLoginPassword" placeholder="Enter your password" autocomplete="current-password" required minlength="6">
+                <button type="button" class="btn btn-outline-secondary password-toggle" id="toggleModalLoginPassword" tabindex="-1" aria-label="Show password">
+                  <i class="fas fa-eye" id="toggleModalLoginPasswordIcon"></i>
+                </button>
+                <div class="invalid-feedback">Password must be at least 6 characters.</div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-warning w-100 py-2 fw-semibold rounded-pill" id="modalLoginBtn">
+              <span id="modalLoginBtnText">Sign In</span>
+              <span id="modalLoginBtnSpinner" class="spinner-border spinner-border-sm d-none"></span>
+            </button>
+          </form>
+          <p class="text-center mt-3 mb-0 small">
+            New to Foodie Hub? <a href="Register.html" class="auth-link">Create an account</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservation Modal -->
+  <div class="modal fade" id="reserveModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-calendar-check me-2 text-warning"></i>Reserve a Table</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="reserveAlert" class="alert d-none"></div>
+          <form id="reserveForm">
+            <div class="row g-3">
+              <div class="col-12"><input type="text" class="form-control" id="resName" placeholder="Your Name" required></div>
+              <div class="col-6"><input type="email" class="form-control" id="resEmail" placeholder="Email (optional)"></div>
+              <div class="col-6"><input type="tel" class="form-control" id="resPhone" placeholder="Phone Number" required></div>
+              <div class="col-6"><input type="date" class="form-control" id="resDate" required></div>
+              <div class="col-6"><input type="time" class="form-control" id="resTime" required></div>
+              <div class="col-12"><select class="form-select" id="resGuests" required><option value="">Number of Guests</option><option value="1">1 Guest</option><option value="2">2 Guests</option><option value="3">3 Guests</option><option value="4">4 Guests</option><option value="5">5 Guests</option><option value="6">6+ Guests</option></select></div>
+              <div class="col-12"><textarea class="form-control" id="resMessage" rows="2" placeholder="Special requests (optional)"></textarea></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" id="reserveSubmitBtn"><span id="reserveBtnText">Confirm Reservation</span><span id="reserveBtnSpinner" class="spinner-border spinner-border-sm d-none"></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div class="modal fade" id="orderDetailModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-receipt me-2 text-warning"></i>Order Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="orderDetailLoading" class="text-center py-3">
+            <div class="spinner-border text-warning spinner-border-sm" role="status"></div>
+            <p class="mt-2 text-muted small">Loading order details...</p>
+          </div>
+          <div id="orderDetailContent" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-bold mb-1">Order #<span id="detailOrderId"></span></h5>
+                <p class="text-muted small mb-0">Placed on <span id="detailOrderDate"></span></p>
+              </div>
+              <span class="order-status-badge" id="detailOrderStatus"></span>
+            </div>
+            <hr>
+            <div class="order-info-item"><i class="fas fa-user"></i><span id="detailCustomerName"></span></div>
+            <div class="order-info-item"><i class="fas fa-phone"></i><span id="detailCustomerPhone"></span></div>
+            <div class="order-info-item"><i class="fas fa-map-marker-alt"></i><span id="detailCustomerAddress"></span></div>
+            <div class="order-info-item"><i class="fas fa-credit-card"></i><span id="detailPaymentMethod"></span></div>
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-utensils me-2 text-warning"></i>Ordered Items</h6>
+            <div id="detailItemsList" class="order-items-list"></div>
+            <div class="order-detail-summary">
+              <div class="order-detail-summary-row"><span>Subtotal</span><span id="detailSubtotal">₹0.00</span></div>
+              <div class="order-detail-summary-row"><span>GST (5%)</span><span id="detailTax">₹0.00</span></div>
+              <div class="order-detail-summary-row"><span>Delivery Fee</span><span id="detailDeliveryFee">₹40.00</span></div>
+              <div class="order-detail-summary-row total"><span>Total</span><span id="detailTotal">₹0.00</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cart Modal -->
+  <div class="modal fade" id="cartModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-bold"><i class="fas fa-shopping-cart me-2 text-warning"></i>Your Cart</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="cartAlert" class="alert d-none"></div>
+
+          <!-- Cart Items View -->
+          <div id="cartContainer">
+            <div class="cart-empty" id="cartEmpty">
+              <i class="fas fa-shopping-basket"></i>
+              <p class="mb-0">Your cart is empty</p>
+              <p class="small text-muted">Add items from our menu to get started</p>
+            </div>
+            <div id="cartItems" class="d-none"></div>
+            <div id="cartSummary" class="cart-summary d-none">
+              <div class="cart-summary-row"><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div class="cart-summary-row"><span>GST (5%)</span><span id="cartTax">₹0.00</span></div>
+              <div class="cart-summary-row"><span>Delivery Fee</span><span id="cartDeliveryFee">₹40.00</span></div>
+              <div class="cart-summary-row total"><span>Total</span><span id="cartTotal">₹40.00</span></div>
+            </div>
+          </div>
+
+          <!-- Checkout Form (hidden by default) -->
+          <div id="checkoutForm" class="d-none">
+            <hr>
+            <h6 class="fw-bold mb-3"><i class="fas fa-credit-card me-2 text-warning"></i>Delivery Details</h6>
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Full Name *</label>
+                <input type="text" class="form-control" id="orderName" placeholder="Your name" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Phone Number *</label>
+                <input type="tel" class="form-control" id="orderPhone" placeholder="+91 9876543210" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Email</label>
+                <input type="email" class="form-control" id="orderEmail" placeholder="your@email.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-medium">Payment Method</label>
+                <select class="form-select" id="orderPayment">
+                  <option value="cod">Cash on Delivery</option>
+                  <option value="online">Online Payment (UPI/Card)</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-medium">Delivery Address *</label>
+                <textarea class="form-control" id="orderAddress" rows="2" placeholder="House/Flat No., Street, Landmark, City" required></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 justify-content-between align-items-center">
+          <div>
+            <button class="btn btn-outline-danger btn-sm rounded-pill px-3 d-none" id="clearCartBtn">
+              <i class="fas fa-trash me-1"></i>Clear Cart
+            </button>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Continue Shopping</button>
+            <button class="btn btn-warning rounded-pill px-4 fw-semibold d-none" id="checkoutBtn">
+              <i class="fas fa-credit-card me-1"></i>Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation Modal -->
+  <div class="modal fade" id="orderConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content text-center p-4">
+        <div class="modal-body">
+          <div class="order-success-icon mb-3">
+            <i class="fas fa-check-circle fa-4x text-success"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Order Placed! 🎉</h4>
+          <p class="text-muted mb-1">Your order has been confirmed.</p>
+          <p class="mb-3"><strong>Order #<span id="confirmOrderId">0000</span></strong></p>
+          <p class="small text-muted mb-3">Total Amount: <strong class="text-success" id="confirmOrderTotal">₹0.00</strong></p>
+          <p class="small text-muted mb-0">We'll deliver it to your address shortly.</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pt-0">
+          <button class="btn btn-warning rounded-pill px-4 fw-semibold" data-bs-dismiss="modal" id="continueShoppingBtn">Continue Shopping</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+const API_URL = '/api';
+
+      function formatPrice(amount) {
+        return '\u20B9' + parseFloat(amount || 0).toFixed(2);
+      }
+
+      function getStatusClass(status) {
+        return status || 'confirmed';
+      }
+
+      function getStatusLabel(status) {
+        const map = {
+          confirmed: 'Confirmed',
+          preparing: 'Preparing',
+          out_for_delivery: 'Out for Delivery',
+          delivered: 'Delivered',
+          cancelled: 'Cancelled'
+        };
+        return map[status] || status || 'Unknown';
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+      }
+
+      // Check user
+      let userData = null;
+      try { userData = JSON.parse(localStorage.getItem('foodiehub_user') || '{}'); } catch(e) {}
+      const isLoggedIn = userData && userData.id;
+
+// Show/hide sections
+      const loading = document.getElementById('ordersLoading');
+      const errorEl = document.getElementById('ordersError');
+      const notLoggedIn = document.getElementById('ordersNotLoggedIn');
+      const emptyEl = document.getElementById('ordersEmpty');
+      const contentEl = document.getElementById('ordersContent');
+
+      if (!isLoggedIn) {
+        loading.classList.add('d-none');
+        notLoggedIn.classList.remove('d-none');
+        return;
+      }
+
+      // Fetch orders
+      loading.classList.remove('d-none');
+
+      fetch(API_URL + '/orders?user_id=' + userData.id)
+        .then(res => res.json())
+        .then(orders => {
+          loading.classList.add('d-none');
+
+          if (!orders || orders.length === 0) {
+            emptyEl.classList.remove('d-none');
+            return;
+          }
+
+          contentEl.classList.remove('d-none');
+          const list = document.getElementById('ordersList');
+          let html = orders.map(order => {
+            const status = getStatusClass(order.order_status);
+            const statusLabel = getStatusLabel(order.order_status);
+            const payMap = { cod: 'Cash on Delivery', upi: 'UPI (GPay/PhonePe/Paytm)', card: 'Credit/Debit Card' };
+            const payLabel = payMap[order.payment_method] || order.payment_method || 'COD';
+
+            return `
+              <div class="order-card">
+                <div class="order-header">
+                  <div>
+                    <div class="order-id">Order #${order.id}</div>
+                    <div class="order-date"><i class="far fa-calendar-alt me-1"></i>${formatDate(order.created_at)}</div>
+                  </div>
+                  <span class="order-status-badge ${status}">${statusLabel}</span>
+                </div>
+                <div class="order-items-list">
+                  <div class="order-item-row">
+                    <span class="order-item-name">Items: ${order.item_count || 'N/A'}</span>
+                    <span class="order-item-price">${formatPrice(order.total_amount)}</span>
+                  </div>
+                  <div class="order-item-row">
+                    <span class="order-item-name">Payment: ${payLabel}</span>
+                    <span class="order-item-qty">${statusLabel}</span>
+                  </div>
+                </div>
+                <div class="order-footer">
+                  <span class="order-total-label">Total</span>
+                  <span class="order-total-amount">${formatPrice(order.total_amount)}</span>
+                  <button class="btn btn-outline-warning btn-sm rounded-pill px-3" onclick="loadOrderDetail(${order.id})"><i class="fas fa-eye me-1"></i>View Details</button>
+                </div>
+              </div>
+            `;
+          }).join('');
+          list.innerHTML = html;
+        })
+        .catch(err => {
+          loading.classList.add('d-none');
+          errorEl.classList.remove('d-none');
+        });
+
+      // Order detail
+      window.loadOrderDetail = function(orderId) {
+        const modal = new bootstrap.Modal(document.getElementById('orderDetailModal'));
+        const modalLoading = document.getElementById('orderDetailLoading');
+        const modalContent = document.getElementById('orderDetailContent');
+
+        modalLoading.classList.remove('d-none');
+        modalContent.classList.add('d-none');
+        modal.show();
+
+        fetch(API_URL + '/orders/' + orderId)
+          .then(res => res.json())
+          .then(data => {
+            modalLoading.classList.add('d-none');
+            modalContent.classList.remove('d-none');
+
+            const order = data.order;
+            const items = data.items || [];
+
+            document.getElementById('detailOrderId').textContent = order.id;
+            document.getElementById('detailOrderDate').textContent = formatDate(order.created_at);
+
+            const statusBadge = document.getElementById('detailOrderStatus');
+            statusBadge.className = 'order-status-badge ' + getStatusClass(order.order_status);
+            statusBadge.textContent = getStatusLabel(order.order_status);
+
+            document.getElementById('detailCustomerName').textContent = order.customer_name || 'N/A';
+            document.getElementById('detailCustomerPhone').textContent = order.phone || 'N/A';
+            document.getElementById('detailCustomerAddress').textContent = order.address || 'N/A';
+
+            const payMap = { cod: 'Cash on Delivery', upi: 'UPI (GPay/PhonePe/Paytm)', card: 'Credit/Debit Card' };
+            document.getElementById('detailPaymentMethod').textContent = payMap[order.payment_method] || order.payment_method || 'COD';
+
+            // Items
+            const itemsHtml = items.map(item => `
+              <div class="order-detail-modal-item">
+                <span class="order-item-name">${item.item_name} <span class="order-item-qty">×${item.quantity}</span></span>
+                <span class="order-item-price">${formatPrice(item.subtotal)}</span>
+              </div>
+            `).join('');
+            document.getElementById('detailItemsList').innerHTML = itemsHtml;
+
+            // Totals
+            document.getElementById('detailSubtotal').textContent = formatPrice(order.subtotal);
+            document.getElementById('detailTax').textContent = formatPrice(order.tax);
+            document.getElementById('detailDeliveryFee').textContent = formatPrice(order.delivery_fee);
+            document.getElementById('detailTotal').textContent = formatPrice(order.total_amount);
+          })
+          .catch(() => {
+            modalLoading.classList.add('d-none');
+            alert('Failed to load order details.');
+          });
+      };
+    });
+  </script>
+</body>
+</html>
