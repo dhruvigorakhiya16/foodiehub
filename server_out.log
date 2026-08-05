@@ -1,6 +1,0 @@
-◇ injected env (5) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-Server running on port 5000
-API URL: http://localhost:5000
-Connected to MySQL Database
-Database tables initialized
-Admin already configured (exactly one admin present)
