@@ -25,13 +25,20 @@ if (require.main === module) {
       await query('SELECT 1');
       console.log('✅ PostgreSQL connected');
     } catch (err) {
-      console.error('❌ PostgreSQL connection failed:', err.message);
+      console.error('❌ PostgreSQL connection failed:');
+      console.error('   message:', err && err.message);
+      console.error('   code:', err && err.code);
+      console.error('   detail:', err && err.detail);
+      console.error('   stack:', err && err.stack);
+      console.error('   DATABASE_URL set:', !!process.env.DATABASE_URL);
+      console.error('   DB_HOST set:', !!process.env.DB_HOST);
       console.error('   Check your DATABASE_URL / DB_* env vars in backend/.env');
     }
 
     const setupDatabase = require('./setup-db');
     const ok = await setupDatabase();
     if (ok) console.log('🚀 Database auto-setup completed');
+    else console.error('⚠️ Database auto-setup FAILED — API will serve errors until DB is reachable.');
 
     app.listen(PORT, () => {
       console.log('========================================');
