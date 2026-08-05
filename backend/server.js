@@ -14,8 +14,12 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// ---- Database connection check + auto-setup on boot (only when running standalone) ----
+// ---- Start server only when run directly ----
 if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+
+  // Auto-create tables & seed data BEFORE listening, so the API never
+  // serves requests against missing tables (no manual shell step on Render).
   (async () => {
     try {
       await query('SELECT 1');
@@ -24,14 +28,22 @@ if (require.main === module) {
       console.error('❌ PostgreSQL connection failed:', err.message);
       console.error('   Check your DATABASE_URL / DB_* env vars in backend/.env');
     }
-  })();
 
-  // Auto-create tables & seed data on startup (no manual shell step needed on Render)
-  const setupDatabase = require('./setup-db');
-  setupDatabase().then(success => {
-    if (success) console.log('🚀 Database auto-setup completed');
-  });
+    const setupDatabase = require('./setup-db');
+    const ok = await setupDatabase();
+    if (ok) console.log('🚀 Database auto-setup completed');
+
+    app.listen(PORT, () => {
+      console.log('========================================');
+      console.log('  Foodie Hub Backend Server Running');
+      console.log(`  http://localhost:${PORT}/api`);
+      console.log('========================================');
+    });
+  })();
 }
+
+// Export for use in Vercel serverless (api/index.js)
+module.exports = app;
 
 // ============================================================
 //                      PUBLIC ROUTES
@@ -640,17 +652,6 @@ app.use(express.static(PROJECT_ROOT, {
 app.use('/api', (req, res) => {
   res.status(404).json({ message: 'API route not found' });
 });
-
-// ---- Start server only when run directly ----
-if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log('========================================');
-    console.log('  Foodie Hub Backend Server Running');
-    console.log(`  http://localhost:${PORT}/api`);
-    console.log('========================================');
-  });
-}
 
 // Export for use in Vercel serverless (api/index.js)
 module.exports = app;
