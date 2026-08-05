@@ -650,22 +650,43 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// ---- DB diagnostic (returns actual error to debug 500s) ----
+// ---- DB diagnostic (returns actual error + connection config to debug 500s) ----
 app.get('/api/debugdb', async (req, res) => {
-  const info = { steps: {} };
+  const info = {
+    env: {
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      DATABASE_SSL: process.env.DATABASE_SSL || '(unset)',
+      DB_HOST: process.env.DB_HOST || '(unset)',
+      PGHOST: process.env.PGHOST || '(unset)',
+      NODE_ENV: process.env.NODE_ENV || '(unset)',
+    },
+    steps: {}
+  };
+  const { pool: dbPool } = require('./db');
+  const cfg = dbPool.options;
+  info.connectionConfig = {
+    hasConnectionString: !!cfg.connectionString,
+    host: cfg.host,
+    port: cfg.port,
+    user: cfg.user,
+    database: cfg.database,
+    ssl: !!cfg.ssl,
+  };
   try {
     await query('SELECT 1');
     info.steps.connection = 'ok';
   } catch (err) {
     info.steps.connection = 'FAILED';
-    info.steps.connectionError = err.message || String(err);
+    info.steps.connectionError = (err && err.message) || String(err);
+    info.steps.connectionCode = err && err.code;
   }
   try {
     const r = await query('SELECT COUNT(*) AS c FROM food_items');
     info.steps.foodCount = r.rows[0].c;
   } catch (err) {
     info.steps.food_items = 'FAILED';
-    info.steps.foodItemsError = err.message || String(err);
+    info.steps.foodItemsError = (err && err.message) || String(err);
+    info.steps.foodItemsCode = err && err.code;
   }
   try {
     const setupDatabase = require('./setup-db');
@@ -673,14 +694,14 @@ app.get('/api/debugdb', async (req, res) => {
     info.steps.setupDatabase = ok ? 'ok' : 'FAILED';
   } catch (err) {
     info.steps.setupDatabase = 'THREW';
-    info.steps.setupError = err.message || String(err);
+    info.steps.setupError = (err && err.message) || String(err);
   }
   try {
     const r = await query('SELECT COUNT(*) AS c FROM food_items');
     info.steps.foodCountAfter = r.rows[0].c;
   } catch (err) {
     info.steps.foodCountAfter = 'FAILED';
-    info.steps.foodCountAfterError = err.message || String(err);
+    info.steps.foodCountAfterError = (err && err.message) || String(err);
   }
   res.json(info);
 });
