@@ -14,12 +14,13 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// ---- Start server only when run directly ----
-if (require.main === module) {
+// ---- Start the server (used by backend/server.js directly AND the
+// root server.js shim, so Render can run either `node server.js` or
+// `node backend/server.js`). Auto-creates tables & seeds data BEFORE
+// listening, so the API never serves requests against missing tables.
+function startServer() {
   const PORT = process.env.PORT || 5000;
 
-  // Auto-create tables & seed data BEFORE listening, so the API never
-  // serves requests against missing tables (no manual shell step on Render).
   (async () => {
     try {
       await query('SELECT 1');
@@ -32,7 +33,7 @@ if (require.main === module) {
       console.error('   stack:', err && err.stack);
       console.error('   DATABASE_URL set:', !!process.env.DATABASE_URL);
       console.error('   DB_HOST set:', !!process.env.DB_HOST);
-      console.error('   Check your DATABASE_URL / DB_* env vars in backend/.env');
+      console.error('   Check your DATABASE_URL / DB_* env vars in .env');
     }
 
     const setupDatabase = require('./setup-db');
@@ -49,8 +50,14 @@ if (require.main === module) {
   })();
 }
 
-// Export for use in Vercel serverless (api/index.js)
+// Start server only when run directly
+if (require.main === module) {
+  startServer();
+}
+
+// Export for Vercel serverless (api/index.js) and the root server.js shim
 module.exports = app;
+module.exports.startServer = startServer;
 
 // ============================================================
 //                      PUBLIC ROUTES
