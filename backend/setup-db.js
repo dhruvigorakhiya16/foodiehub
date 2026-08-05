@@ -154,14 +154,32 @@ const seedSQL = `
     ('Tiramisu', 'Classic Italian coffee-flavored dessert with mascarpone cream', 6.99, 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 4.7, 'Dessert', 'Veg', false);
 `;
 
+// Split a multi-statement SQL string into individual executable statements.
+// The PostgreSQL 'pg' driver does NOT support multiple statements in one
+// query() call, so we split on ';' and run each statement separately.
+function splitSql(sql) {
+  return sql
+    .split(';')
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+}
+
 async function setupDatabase() {
   try {
     console.log('Connecting to PostgreSQL...');
-    await pool.query(createTablesSQL);
+
+    // Execute each CREATE TABLE statement individually
+    const createStatements = splitSql(createTablesSQL);
+    for (const stmt of createStatements) {
+      await pool.query(stmt);
+    }
     console.log('✅ Tables created successfully!');
 
-    // Seed categories + food items
-    await pool.query(seedSQL);
+    // Execute each seed INSERT statement individually
+    const seedStatements = splitSql(seedSQL);
+    for (const stmt of seedStatements) {
+      await pool.query(stmt);
+    }
     console.log('✅ Categories & food items seeded');
 
     // Seed admin (bcrypt-hashed)
