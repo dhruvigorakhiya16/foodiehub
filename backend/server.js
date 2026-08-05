@@ -636,6 +636,41 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+// ---- DB diagnostic (returns actual error to debug 500s) ----
+app.get('/api/debugdb', async (req, res) => {
+  const info = { steps: {} };
+  try {
+    await query('SELECT 1');
+    info.steps.connection = 'ok';
+  } catch (err) {
+    info.steps.connection = 'FAILED';
+    info.steps.connectionError = err.message || String(err);
+  }
+  try {
+    const r = await query('SELECT COUNT(*) AS c FROM food_items');
+    info.steps.foodCount = r.rows[0].c;
+  } catch (err) {
+    info.steps.food_items = 'FAILED';
+    info.steps.foodItemsError = err.message || String(err);
+  }
+  try {
+    const setupDatabase = require('./setup-db');
+    const ok = await setupDatabase();
+    info.steps.setupDatabase = ok ? 'ok' : 'FAILED';
+  } catch (err) {
+    info.steps.setupDatabase = 'THREW';
+    info.steps.setupError = err.message || String(err);
+  }
+  try {
+    const r = await query('SELECT COUNT(*) AS c FROM food_items');
+    info.steps.foodCountAfter = r.rows[0].c;
+  } catch (err) {
+    info.steps.foodCountAfter = 'FAILED';
+    info.steps.foodCountAfterError = err.message || String(err);
+  }
+  res.json(info);
+});
+
 // ============================================================
 //            STATIC FRONTEND SERVING (for Render all-in-one)
 // Placed AFTER the API routes so they take priority. The HTML/
