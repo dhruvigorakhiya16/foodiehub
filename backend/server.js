@@ -14,7 +14,7 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// ---- Database connection check on boot (only when running standalone) ----
+// ---- Database connection check + auto-setup on boot (only when running standalone) ----
 if (require.main === module) {
   (async () => {
     try {
@@ -25,6 +25,12 @@ if (require.main === module) {
       console.error('   Check your DATABASE_URL / DB_* env vars in backend/.env');
     }
   })();
+
+  // Auto-create tables & seed data on startup (no manual shell step needed on Render)
+  const setupDatabase = require('./setup-db');
+  setupDatabase().then(success => {
+    if (success) console.log('🚀 Database auto-setup completed');
+  });
 }
 
 // ============================================================

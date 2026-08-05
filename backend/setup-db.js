@@ -178,11 +178,16 @@ async function setupDatabase() {
     }
 
     console.log('✅ Database setup complete!');
+    return true;
   } catch (err) {
     console.error('❌ Error setting up database:', err.message);
-  } finally {
-    await pool.end();
+    return false;
   }
 }
 
-setupDatabase();
+// Run setup automatically when executed directly (node setup-db.js)
+if (require.main === module) {
+  setupDatabase().finally(() => pool.end());
+}
+
+module.exports = setupDatabase;
