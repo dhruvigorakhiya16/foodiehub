@@ -1,7 +1,7 @@
 {
   "name": "foodie-hub-restaurant",
   "version": "1.0.0",
-  "description": "Foodie Hub Restaurant Website - Full Stack (Express + PostgreSQL)",
+  "description": "Foodie Hub Restaurant Website - Full Stack (Express + MySQL)",
   "private": true,
   "engines": {
     "node": ">=18.0.0"
@@ -16,6 +16,6 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "pg": "^8.22.0"
+    "mysql2": "^3.23.2"
   }
 }

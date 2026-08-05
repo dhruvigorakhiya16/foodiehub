@@ -1,12 +1,19 @@
 # ============================================
 # Render Blueprint - Foodie Hub Restaurant
-# Deploys the FULL app (frontend + backend) + PostgreSQL
+# Deploys the FULL app (frontend + backend) + MySQL
 # rootDir is the repo root so static files (HTML/CSS/JS)
 # and the backend are all available to the Express server.
+#
+# NOTE: Render's free tier does NOT provide a managed MySQL
+# database. The MySQL database is hosted externally (e.g. Aiven
+# free tier at https://aiven.io). Set these env vars in Render's
+# dashboard (or via this blueprint) with your cloud MySQL URL:
+#   MYSQL_URL = mysql://USER:PASSWORD@HOST:PORT/restaurant_db
+#   DATABASE_SSL = true
 # ============================================
 services:
   - type: web
-    name: foodie-hub
+    name: foodiehub
     runtime: node
     plan: free
     rootDir: .
@@ -16,18 +23,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: foodiehub-db
-          property: connectionString
-      - key: DATABASE_SSL
-        value: "true"
       - key: PORT
         value: 10000
-
-databases:
-  - name: foodiehub-db
-    plan: free
-    databaseName: restaurant_db
-    user: postgres
-    postgresMajorVersion: "16"
+      # Cloud MySQL connection string (set this in Render dashboard)
+      - key: MYSQL_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"

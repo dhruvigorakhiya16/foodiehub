@@ -1,12 +1,12 @@
 // ============================================
-// Foodie Hub - Backend Express Server (PostgreSQL)
-// Works locally, on Vercel, and on Render
+// Foodie Hub - Backend Express Server (MySQL)
+// Works with local XAMPP / phpMyAdmin MySQL
 // ============================================
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const { pool, query } = require('./db');
+const { pool, query, getConnection } = require('./db');
 
 const app = express();
 
@@ -14,26 +14,21 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
-// ---- Start the server (used by backend/server.js directly AND the
-// root server.js shim, so Render can run either `node server.js` or
-// `node backend/server.js`). Auto-creates tables & seeds data BEFORE
-// listening, so the API never serves requests against missing tables.
+// ---- Start the server (used by backend/server.js directly AND supports
+// Vercel serverless via api/index.js). Auto-creates tables & seeds data
+// BEFORE listening, so the API never serves requests against missing tables.
 function startServer() {
   const PORT = process.env.PORT || 5000;
 
   (async () => {
     try {
       await query('SELECT 1');
-      console.log('✅ PostgreSQL connected');
+      console.log('✅ MySQL connected');
     } catch (err) {
-      console.error('❌ PostgreSQL connection failed:');
+      console.error('❌ MySQL connection failed:');
       console.error('   message:', err && err.message);
       console.error('   code:', err && err.code);
-      console.error('   detail:', err && err.detail);
-      console.error('   stack:', err && err.stack);
-      console.error('   DATABASE_URL set:', !!process.env.DATABASE_URL);
-      console.error('   DB_HOST set:', !!process.env.DB_HOST);
-      console.error('   Check your DATABASE_URL / DB_* env vars in .env');
+      console.error('   Check DB_HOST / DB_USER / DB_PASSWORD / DB_NAME in backend/.env');
     }
 
     const setupDatabase = require('./setup-db');
@@ -55,7 +50,7 @@ if (require.main === module) {
   startServer();
 }
 
-// Export for Vercel serverless (api/index.js) and the root server.js shim
+// Export for Vercel serverless (api/index.js)
 module.exports = app;
 module.exports.startServer = startServer;
 
@@ -82,7 +77,7 @@ app.get('/api/foods', async (req, res) => {
        FROM food_items f
        ORDER BY f.id ASC`
     );
-    res.json(result.rows);
+    res.json(result);
   } catch (err) {
     console.error('GET /api/foods error:', err.message);
     res.status(500).json({ message: 'Failed to load foods', error: err.message });
@@ -95,7 +90,7 @@ app.get('/api/categories', async (req, res) => {
     const result = await query(
       `SELECT id AS category_id, category_name, emoji, description FROM categories ORDER BY id ASC`
     );
-    res.json(result.rows);
+    res.json(result);
   } catch (err) {
     console.error('GET /api/categories error:', err.message);
     res.status(500).json({ message: 'Failed to load categories', error: err.message });
@@ -111,17 +106,17 @@ app.post('/api/register', async (req, res) => {
     }
 
     // Check if email already exists
-    const existing = await query('SELECT id FROM users WHERE email = $1', [email]);
-    if (existing.rows.length > 0) {
+    const existing = await query('SELECT id FROM users WHERE email = ?', [email]);
+    if (existing.length > 0) {
       return res.status(400).json({ message: 'Email already registered. Please login.' });
     }
 
     const hashedPassword = bcrypt.hashSync(String(password), 10);
     const result = await query(
-      'INSERT INTO users (name, email, password, phone_no, address) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      'INSERT INTO users (name, email, password, phone_no, address) VALUES (?, ?, ?, ?, ?)',
       [name, email, hashedPassword, phone_no || null, address || null]
     );
-    res.status(201).json({ message: 'Registration successful', user_id: result.rows[0].id });
+    res.status(201).json({ message: 'Registration successful', user_id: result.insertId });
   } catch (err) {
     console.error('POST /api/register error:', err.message);
     res.status(500).json({ message: 'Registration failed', error: err.message });
@@ -137,9 +132,9 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Check admin first
-    const admins = await query('SELECT * FROM admins WHERE email = $1', [email]);
-    if (admins.rows.length > 0) {
-      const admin = admins.rows[0];
+    const admins = await query('SELECT * FROM admins WHERE email = ?', [email]);
+    if (admins.length > 0) {
+      const admin = admins[0];
       const match = bcrypt.compareSync(String(password), admin.password);
       if (match) {
         return res.json({
@@ -157,11 +152,11 @@ app.post('/api/login', async (req, res) => {
     }
 
     // Check user
-    const users = await query('SELECT * FROM users WHERE email = $1', [email]);
-    if (users.rows.length === 0) {
+    const users = await query('SELECT * FROM users WHERE email = ?', [email]);
+    if (users.length === 0) {
       return res.status(401).json({ message: 'No account found with this email' });
     }
-    const user = users.rows[0];
+    const user = users[0];
     const match = bcrypt.compareSync(String(password), user.password);
     if (!match) {
       return res.status(401).json({ message: 'Invalid email or password' });
@@ -193,24 +188,24 @@ app.post('/api/cart', async (req, res) => {
     // Check if item already in cart for this user
     if (user_id) {
       const existing = await query(
-        'SELECT * FROM cart WHERE user_id = $1 AND food_id = $2',
+        'SELECT * FROM cart WHERE user_id = ? AND food_id = ?',
         [user_id, food_id]
       );
-      if (existing.rows.length > 0) {
-        const newQty = existing.rows[0].quantity + qty;
+      if (existing.length > 0) {
+        const newQty = existing[0].quantity + qty;
         await query(
-          'UPDATE cart SET quantity = $1, total = $2 WHERE id = $3',
-          [newQty, parseFloat((parseFloat(price) * newQty).toFixed(2)), existing.rows[0].id]
+          'UPDATE cart SET quantity = ?, total = ? WHERE id = ?',
+          [newQty, parseFloat((parseFloat(price) * newQty).toFixed(2)), existing[0].id]
         );
-        return res.json({ message: 'Cart updated', cart_id: existing.rows[0].id });
+        return res.json({ message: 'Cart updated', cart_id: existing[0].id });
       }
     }
 
     const result = await query(
-      'INSERT INTO cart (user_id, food_id, quantity, price, total) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+      'INSERT INTO cart (user_id, food_id, quantity, price, total) VALUES (?, ?, ?, ?, ?)',
       [user_id || null, food_id, qty, parseFloat(parseFloat(price).toFixed(2)), total]
     );
-    res.status(201).json({ message: 'Item added to cart', cart_id: result.rows[0].id });
+    res.status(201).json({ message: 'Item added to cart', cart_id: result.insertId });
   } catch (err) {
     console.error('POST /api/cart error:', err.message);
     res.status(500).json({ message: 'Failed to add to cart', error: err.message });
@@ -219,7 +214,7 @@ app.post('/api/cart', async (req, res) => {
 
 // ---- Create an order ----
 app.post('/api/orders', async (req, res) => {
-  const client = await pool.connect();
+  const client = await getConnection();
   try {
     const {
       customer_name, email, phone, address, payment_method,
@@ -242,35 +237,43 @@ app.post('/api/orders', async (req, res) => {
 
     const payMethod = payment_method || 'cod';
 
-    await client.query('BEGIN');
+    await client.beginTransaction();
 
     // Insert order
-    const orderResult = await client.query(
-      `INSERT INTO orders (user_id, customer_name, email, phone, address, subtotal, tax, delivery_fee, total_amount, payment_method, item_count)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
-      [user_id || null, customer_name, email || null, phone, address || null, subtotal, tax, delivery_fee, total_amount, payMethod, items.length]
-    );
-    const orderId = orderResult.rows[0].id;
+    const orderResult = await new Promise((resolve, reject) => {
+      client.query(
+        `INSERT INTO orders (user_id, customer_name, email, phone, address, subtotal, tax, delivery_fee, total_amount, payment_method, item_count)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [user_id || null, customer_name, email || null, phone, address || null, subtotal, tax, delivery_fee, total_amount, payMethod, items.length],
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+    });
+    const orderId = orderResult.insertId;
 
     // Insert order items
     for (const item of items) {
       const itemSubtotal = parseFloat((parseFloat(item.price) * (item.quantity || 1)).toFixed(2));
-      await client.query(
-        `INSERT INTO order_items (order_id, food_item_id, item_name, quantity, price, subtotal)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [orderId, item.food_item_id || null, item.item_name, item.quantity || 1, parseFloat(parseFloat(item.price).toFixed(2)), itemSubtotal]
-      );
+      await new Promise((resolve, reject) => {
+        client.query(
+          `INSERT INTO order_items (order_id, food_item_id, item_name, quantity, price, subtotal)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [orderId, item.food_item_id || null, item.item_name, item.quantity || 1, parseFloat(parseFloat(item.price).toFixed(2)), itemSubtotal],
+          (err, result) => (err ? reject(err) : resolve(result))
+        );
+      });
     }
 
     // Clear user's synced cart for this order
     if (user_id) {
-      await client.query('DELETE FROM cart WHERE user_id = $1', [user_id]);
+      await new Promise((resolve, reject) => {
+        client.query('DELETE FROM cart WHERE user_id = ?', [user_id], (err, r) => (err ? reject(err) : resolve(r)));
+      });
     }
 
-    await client.query('COMMIT');
+    await client.commit();
     res.status(201).json({ message: 'Order placed successfully', order_id: orderId, total_amount });
   } catch (err) {
-    await client.query('ROLLBACK');
+    try { await client.rollback(); } catch (e) {}
     console.error('POST /api/orders error:', err.message);
     res.status(500).json({ message: 'Failed to place order', error: err.message });
   } finally {
@@ -287,13 +290,13 @@ app.get('/api/orders', async (req, res) => {
     }
     const result = await query(
       `SELECT o.*,
-              (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id)::int AS item_count
+              (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
        FROM orders o
-       WHERE o.user_id = $1
+       WHERE o.user_id = ?
        ORDER BY o.created_at DESC`,
       [user_id]
     );
-    res.json(result.rows);
+    res.json(result);
   } catch (err) {
     console.error('GET /api/orders error:', err.message);
     res.status(500).json({ message: 'Failed to load orders', error: err.message });
@@ -304,12 +307,12 @@ app.get('/api/orders', async (req, res) => {
 app.get('/api/orders/:id', async (req, res) => {
   try {
     const orderId = req.params.id;
-    const orders = await query('SELECT * FROM orders WHERE id = $1', [orderId]);
-    if (orders.rows.length === 0) {
+    const orders = await query('SELECT * FROM orders WHERE id = ?', [orderId]);
+    if (orders.length === 0) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    const items = await query('SELECT * FROM order_items WHERE order_id = $1', [orderId]);
-    res.json({ order: orders.rows[0], items: items.rows });
+    const items = await query('SELECT * FROM order_items WHERE order_id = ?', [orderId]);
+    res.json({ order: orders[0], items: items });
   } catch (err) {
     console.error('GET /api/orders/:id error:', err.message);
     res.status(500).json({ message: 'Failed to load order', error: err.message });
@@ -324,10 +327,10 @@ app.post('/api/reservations', async (req, res) => {
       return res.status(400).json({ message: 'Name, phone, date, time, and guests are required' });
     }
     const result = await query(
-      'INSERT INTO reservations (name, email, phone, res_date, res_time, guests, message) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      'INSERT INTO reservations (name, email, phone, res_date, res_time, guests, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [name, email || null, phone, res_date, res_time, guests, message || null]
     );
-    res.status(201).json({ message: 'Reservation booked successfully', reservation_id: result.rows[0].id });
+    res.status(201).json({ message: 'Reservation booked successfully', reservation_id: result.insertId });
   } catch (err) {
     console.error('POST /api/reservations error:', err.message);
     res.status(500).json({ message: 'Reservation failed', error: err.message });
@@ -342,10 +345,10 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
     const result = await query(
-      'INSERT INTO contacts (name, email, subject, message) VALUES ($1, $2, $3, $4) RETURNING id',
+      'INSERT INTO contacts (name, email, subject, message) VALUES (?, ?, ?, ?)',
       [name, email, subject, message]
     );
-    res.status(201).json({ message: 'Message sent successfully', contact_id: result.rows[0].id });
+    res.status(201).json({ message: 'Message sent successfully', contact_id: result.insertId });
   } catch (err) {
     console.error('POST /api/contact error:', err.message);
     res.status(500).json({ message: 'Failed to send message', error: err.message });
@@ -360,13 +363,13 @@ app.post('/api/contact', async (req, res) => {
 app.get('/api/user/profile/:id', async (req, res) => {
   try {
     const users = await query(
-      'SELECT id, name, email, phone_no, address, created_at FROM users WHERE id = $1',
+      'SELECT id, name, email, phone_no, address, created_at FROM users WHERE id = ?',
       [req.params.id]
     );
-    if (users.rows.length === 0) {
+    if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(users.rows[0]);
+    res.json(users[0]);
   } catch (err) {
     console.error('GET /api/user/profile/:id error:', err.message);
     res.status(500).json({ message: 'Failed to load profile', error: err.message });
@@ -381,7 +384,7 @@ app.put('/api/user/profile/:id', async (req, res) => {
       return res.status(400).json({ message: 'Name, email, and phone are required' });
     }
     await query(
-      'UPDATE users SET name = $1, email = $2, phone_no = $3, address = $4 WHERE id = $5',
+      'UPDATE users SET name = ?, email = ?, phone_no = ?, address = ? WHERE id = ?',
       [name, email, phone_no, address || null, req.params.id]
     );
     res.json({ message: 'Profile updated successfully' });
@@ -395,16 +398,16 @@ app.put('/api/user/profile/:id', async (req, res) => {
 app.put('/api/user/password/:id', async (req, res) => {
   try {
     const { current_password, new_password } = req.body;
-    const users = await query('SELECT password FROM users WHERE id = $1', [req.params.id]);
-    if (users.rows.length === 0) {
+    const users = await query('SELECT password FROM users WHERE id = ?', [req.params.id]);
+    if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
-    const match = bcrypt.compareSync(String(current_password), users.rows[0].password);
+    const match = bcrypt.compareSync(String(current_password), users[0].password);
     if (!match) {
       return res.status(401).json({ message: 'Current password is incorrect' });
     }
     const hashedPassword = bcrypt.hashSync(String(new_password), 10);
-    await query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, req.params.id]);
+    await query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, req.params.id]);
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     console.error('PUT /api/user/password/:id error:', err.message);
@@ -424,12 +427,12 @@ function adminAuth(req, res, next) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
   // Verify admin exists
-  query('SELECT * FROM admins WHERE id = $1 AND email = $2', [id, email])
+  query('SELECT * FROM admins WHERE id = ? AND email = ?', [id, email])
     .then(result => {
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return res.status(401).json({ message: 'Unauthorized' });
       }
-      req.admin = result.rows[0];
+      req.admin = result[0];
       next();
     })
     .catch(err => res.status(500).json({ message: 'Auth error', error: err.message }));
@@ -439,17 +442,17 @@ function adminAuth(req, res, next) {
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admins = await query('SELECT * FROM admins WHERE email = $1', [email]);
-    if (admins.rows.length === 0) {
+    const admins = await query('SELECT * FROM admins WHERE email = ?', [email]);
+    if (admins.length === 0) {
       return res.status(401).json({ message: 'Admin not found' });
     }
-    const match = bcrypt.compareSync(String(password), admins.rows[0].password);
+    const match = bcrypt.compareSync(String(password), admins[0].password);
     if (!match) {
       return res.status(401).json({ message: 'Invalid admin credentials' });
     }
     res.json({
       message: 'Admin login successful',
-      admin: { id: admins.rows[0].id, name: admins.rows[0].name, email: admins.rows[0].email, role: admins.rows[0].role || 'admin' }
+      admin: { id: admins[0].id, name: admins[0].name, email: admins[0].email, role: admins[0].role || 'admin' }
     });
   } catch (err) {
     console.error('POST /api/admin/login error:', err.message);
@@ -467,11 +470,11 @@ app.get('/api/admin/orders', adminAuth, async (req, res) => {
   try {
     const orders = await query(
       `SELECT o.*,
-              (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id)::int AS item_count
+              (SELECT COUNT(*) FROM order_items oi WHERE oi.order_id = o.id) AS item_count
        FROM orders o
        ORDER BY o.created_at DESC`
     );
-    res.json(orders.rows);
+    res.json(orders);
   } catch (err) {
     console.error('GET /api/admin/orders error:', err.message);
     res.status(500).json({ message: 'Failed to load orders', error: err.message });
@@ -486,7 +489,7 @@ app.put('/api/admin/orders/:id/status', adminAuth, async (req, res) => {
     if (!order_status || !valid.includes(order_status)) {
       return res.status(400).json({ message: 'Invalid order status' });
     }
-    await query('UPDATE orders SET order_status = $1 WHERE id = $2', [order_status, req.params.id]);
+    await query('UPDATE orders SET order_status = ? WHERE id = ?', [order_status, req.params.id]);
     res.json({ message: 'Order status updated successfully' });
   } catch (err) {
     console.error('PUT /api/admin/orders/:id/status error:', err.message);
@@ -498,7 +501,7 @@ app.put('/api/admin/orders/:id/status', adminAuth, async (req, res) => {
 app.get('/api/admin/users', adminAuth, async (req, res) => {
   try {
     const users = await query('SELECT id, name, email, phone_no, address, created_at FROM users ORDER BY id DESC');
-    res.json(users.rows);
+    res.json(users);
   } catch (err) {
     console.error('GET /api/admin/users error:', err.message);
     res.status(500).json({ message: 'Failed to load users', error: err.message });
@@ -509,7 +512,7 @@ app.get('/api/admin/users', adminAuth, async (req, res) => {
 app.get('/api/admin/reservations', adminAuth, async (req, res) => {
   try {
     const reservations = await query('SELECT * FROM reservations ORDER BY created_at DESC');
-    res.json(reservations.rows);
+    res.json(reservations);
   } catch (err) {
     console.error('GET /api/admin/reservations error:', err.message);
     res.status(500).json({ message: 'Failed to load reservations', error: err.message });
@@ -520,7 +523,7 @@ app.get('/api/admin/reservations', adminAuth, async (req, res) => {
 app.get('/api/admin/contacts', adminAuth, async (req, res) => {
   try {
     const contacts = await query('SELECT * FROM contacts ORDER BY created_at DESC');
-    res.json(contacts.rows);
+    res.json(contacts);
   } catch (err) {
     console.error('GET /api/admin/contacts error:', err.message);
     res.status(500).json({ message: 'Failed to load contacts', error: err.message });
@@ -536,18 +539,18 @@ app.post('/api/admin/foods', adminAuth, async (req, res) => {
     }
     const catName = category || 'General';
     // Find or create category
-    let cats = await query('SELECT id FROM categories WHERE category_name = $1', [catName]);
+    let cats = await query('SELECT id FROM categories WHERE category_name = ?', [catName]);
     let catId = null;
-    if (cats.rows.length > 0) {
-      catId = cats.rows[0].id;
+    if (cats.length > 0) {
+      catId = cats[0].id;
     } else {
-      const r = await query('INSERT INTO categories (category_name) VALUES ($1) RETURNING id', [catName]);
-      catId = r.rows[0].id;
+      const r = await query('INSERT INTO categories (category_name) VALUES (?)', [catName]);
+      catId = r.insertId;
     }
     const defaultImg = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80';
     const result = await query(
       `INSERT INTO food_items (name, description, price, image_url, image, rating, category, category_id, food_type, is_best_seller)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         name,
         description || '',
@@ -561,7 +564,7 @@ app.post('/api/admin/foods', adminAuth, async (req, res) => {
         is_best_seller ? true : false
       ]
     );
-    res.status(201).json({ message: 'Food item added successfully', food_id: result.rows[0].id });
+    res.status(201).json({ message: 'Food item added successfully', food_id: result.insertId });
   } catch (err) {
     console.error('POST /api/admin/foods error:', err.message);
     res.status(500).json({ message: 'Failed to add food item', error: err.message });
@@ -574,18 +577,18 @@ app.put('/api/admin/foods/:id', adminAuth, async (req, res) => {
     const { name, price, category, food_type, description, image_url, rating, is_best_seller } = req.body;
     const catName = category || 'General';
     // Find or create category
-    let cats = await query('SELECT id FROM categories WHERE category_name = $1', [catName]);
+    let cats = await query('SELECT id FROM categories WHERE category_name = ?', [catName]);
     let catId = null;
-    if (cats.rows.length > 0) {
-      catId = cats.rows[0].id;
+    if (cats.length > 0) {
+      catId = cats[0].id;
     } else {
-      const r = await query('INSERT INTO categories (category_name) VALUES ($1) RETURNING id', [catName]);
-      catId = r.rows[0].id;
+      const r = await query('INSERT INTO categories (category_name) VALUES (?)', [catName]);
+      catId = r.insertId;
     }
     await query(
       `UPDATE food_items
-       SET name = $1, description = $2, price = $3, category = $4, category_id = $5, food_type = $6, rating = $7, is_best_seller = $8
-       WHERE id = $9`,
+       SET name = ?, description = ?, price = ?, category = ?, category_id = ?, food_type = ?, rating = ?, is_best_seller = ?
+       WHERE id = ?`,
       [
         name || '',
         description || '',
@@ -608,7 +611,7 @@ app.put('/api/admin/foods/:id', adminAuth, async (req, res) => {
 // ---- Delete a food item (admin) ----
 app.delete('/api/admin/foods/:id', adminAuth, async (req, res) => {
   try {
-    await query('DELETE FROM food_items WHERE id = $1', [req.params.id]);
+    await query('DELETE FROM food_items WHERE id = ?', [req.params.id]);
     res.json({ message: 'Food item deleted successfully' });
   } catch (err) {
     console.error('DELETE /api/admin/foods/:id error:', err.message);
@@ -623,11 +626,11 @@ app.post('/api/admin/categories', adminAuth, async (req, res) => {
     if (!category_name) {
       return res.status(400).json({ message: 'Category name is required' });
     }
-    const result = await query('INSERT INTO categories (category_name) VALUES ($1) RETURNING id', [category_name]);
-    res.status(201).json({ message: 'Category added successfully', category_id: result.rows[0].id });
+    const result = await query('INSERT INTO categories (category_name) VALUES (?)', [category_name]);
+    res.status(201).json({ message: 'Category added successfully', category_id: result.insertId });
   } catch (err) {
     console.error('POST /api/admin/categories error:', err.message);
-    if (err.code === '23505') {
+    if (err.errno === 1062) {
       return res.status(400).json({ message: 'Category already exists' });
     }
     res.status(500).json({ message: 'Failed to add category', error: err.message });
@@ -637,7 +640,7 @@ app.post('/api/admin/categories', adminAuth, async (req, res) => {
 // ---- Delete a category (admin) ----
 app.delete('/api/admin/categories/:id', adminAuth, async (req, res) => {
   try {
-    await query('DELETE FROM categories WHERE id = $1', [req.params.id]);
+    await query('DELETE FROM categories WHERE id = ?', [req.params.id]);
     res.json({ message: 'Category deleted successfully' });
   } catch (err) {
     console.error('DELETE /api/admin/categories/:id error:', err.message);
@@ -654,23 +657,21 @@ app.get('/api/health', (req, res) => {
 app.get('/api/debugdb', async (req, res) => {
   const info = {
     env: {
-      DATABASE_URL: !!process.env.DATABASE_URL,
-      DATABASE_SSL: process.env.DATABASE_SSL || '(unset)',
       DB_HOST: process.env.DB_HOST || '(unset)',
-      PGHOST: process.env.PGHOST || '(unset)',
+      DB_PORT: process.env.DB_PORT || '(unset)',
+      DB_USER: process.env.DB_USER || '(unset)',
+      DB_NAME: process.env.DB_NAME || '(unset)',
       NODE_ENV: process.env.NODE_ENV || '(unset)',
     },
     steps: {}
   };
   const { pool: dbPool } = require('./db');
-  const cfg = dbPool.options;
+  const cfg = dbPool.config;
   info.connectionConfig = {
-    hasConnectionString: !!cfg.connectionString,
-    host: cfg.host,
-    port: cfg.port,
-    user: cfg.user,
-    database: cfg.database,
-    ssl: !!cfg.ssl,
+    host: cfg.connectionConfig.host,
+    port: cfg.connectionConfig.port,
+    user: cfg.connectionConfig.user,
+    database: cfg.connectionConfig.database,
   };
   try {
     await query('SELECT 1');
@@ -682,7 +683,7 @@ app.get('/api/debugdb', async (req, res) => {
   }
   try {
     const r = await query('SELECT COUNT(*) AS c FROM food_items');
-    info.steps.foodCount = r.rows[0].c;
+    info.steps.foodCount = r[0].c;
   } catch (err) {
     info.steps.food_items = 'FAILED';
     info.steps.foodItemsError = (err && err.message) || String(err);
@@ -698,7 +699,7 @@ app.get('/api/debugdb', async (req, res) => {
   }
   try {
     const r = await query('SELECT COUNT(*) AS c FROM food_items');
-    info.steps.foodCountAfter = r.rows[0].c;
+    info.steps.foodCountAfter = r[0].c;
   } catch (err) {
     info.steps.foodCountAfter = 'FAILED';
     info.steps.foodCountAfterError = (err && err.message) || String(err);
@@ -708,9 +709,7 @@ app.get('/api/debugdb', async (req, res) => {
 
 // ============================================================
 //            STATIC FRONTEND SERVING (for Render all-in-one)
-// Placed AFTER the API routes so they take priority. The HTML/
-// CSS/JS files live in the project root. Serve them so Render
-// hosts BOTH the API and the website on one service.
+// Placed AFTER the API routes so they take priority.
 // ============================================================
 const PROJECT_ROOT = path.join(__dirname, '..');
 app.use(express.static(PROJECT_ROOT, {
